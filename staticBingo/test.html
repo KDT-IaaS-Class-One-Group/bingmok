@@ -78,6 +78,7 @@
                     cell.addEventListener("click", () => {
                         if (cell.parentElement.parentElement.classList.contains("active-board")) {
                             cell.classList.toggle("checked");
+                            markOpponentBoard(cell.textContent);
                             checkForBingo(boardId);
                             nextTurn();
                         }
@@ -104,8 +105,9 @@
                 cell = getRandomCell(currentPlayer);
                 if (cell) {
                     cell.classList.add("checked");
+                    markOpponentBoard(cell.textContent);
+                    nextTurn();
                 }
-                nextTurn();
             }
         }, 1000);
 
@@ -116,6 +118,17 @@
                 return null;
             }
             return uncheckedCells[Math.floor(Math.random() * uncheckedCells.length)];
+        }
+
+        function markOpponentBoard(number) {
+            const opponentPlayer = currentPlayer === "left" ? "right" : "left";
+            const opponentBoard = document.getElementById(opponentPlayer + "-board");
+            const cells = opponentBoard.getElementsByTagName("td");
+            for (let i = 0; i < cells.length; i++) {
+                if (cells[i].textContent === number) {
+                    cells[i].classList.add("checked");
+                }
+            }
         }
 
         // 다음 턴으로 진행
@@ -129,6 +142,7 @@
                     cell = getRandomCell(currentPlayer);
                     if (cell) {
                         cell.classList.add("checked");
+                        markOpponentBoard(cell.textContent);
                     }
                     nextTurn();
                 }
