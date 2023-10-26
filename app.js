@@ -23,7 +23,7 @@ app.post('/login', (req, res) => {
   // 로그인 처리 코드를 작성하세요.
 
   // 예시 응답
-  if (username === 'user' && password === 'password') {
+  if (username === 'bingmok' && password === '1234') {
     res.send('로그인 성공');
   } else {
     res.send('로그인 실패');
@@ -41,5 +41,8 @@ app.get('/gameTwo', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`서버가 포트 ${port}에서 실행 중입니다.`);
+  console.log(`
+서버가 포트 ${port}에서 실행 중입니다.
+http://localhost:${port}
+`);
 });
