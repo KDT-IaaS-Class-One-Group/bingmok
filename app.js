@@ -32,7 +32,7 @@ app.post('/login', (req, res) => {
 
 // GET 요청으로 gameOne.html 파일을 읽어옵니다.
 app.get('/gameOne', (req, res) => {
-  res.sendFile(__dirname + '/static/gameOne.html');
+  res.sendFile(__dirname + '/static/odhello.html');
 });
 
 // GET 요청으로 gameTwo.html 파일을 읽어옵니다.
