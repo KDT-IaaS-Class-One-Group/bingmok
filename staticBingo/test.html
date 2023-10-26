@@ -82,10 +82,12 @@
                     cell.textContent = numbers[i * boardSize + j];
                     cell.addEventListener("click", () => {
                         if (cell.parentElement.parentElement.classList.contains("active-board")) {
-                            cell.classList.toggle("checked");
-                            markOpponentBoard(currentPlayer === "left" ? "right" : "left", cell.textContent);
-                            checkForBingo(boardId);
-                            nextTurn();
+                            if (!cell.classList.contains("checked")) {
+                                cell.classList.add("checked");
+                                markOpponentBoard(currentPlayer === "left" ? "right" : "left", cell.textContent);
+                                checkForBingo(boardId);
+                                nextTurn();
+                            }
                         }
                     });
                     row.appendChild(cell);
