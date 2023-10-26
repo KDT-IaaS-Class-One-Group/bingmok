@@ -15,22 +15,25 @@
       background-color:azure;
       padding: 50px;
       display: flex;
-    }
-    
-    #root > div:nth-child(1){
-      width: 1000px;
-      height: 1000px;
-      display: flex;
-      align-items: center;
-      margin-top: 30px;
+      /* flex-wrap: nowrap; */
     }
 
-    #root > div:nth-child(2){
-      width: 200;
-      height: 200;
+    h1{
+      width: 1000px;
+      /* text-align: center; */
+      font-size: 3rem;
+    }
+
+    .game{
+      width: 1000px;
+      height: 600px;
       display: flex;
       align-items: center;
-      margin-top: 30px;
+    }
+
+    .login{
+      width: 200px;
+      height: 200px;
     }
 
   </style>
@@ -39,17 +42,17 @@
   <div id="root">
     <h1>게임중독은 패가망신의 길!</h1>
 
-      <div>
+      <div class="game">
         <div a href="odhello.html">
           <img src="https://play-lh.googleusercontent.com/Xc59tWSt3F_Z8T0NUFJls5qr4XSttRO7SINC0_4HCkLk04mh4cBnz0OU1G2Bbs4pqU8" alt="Omok Game">
-        </a>
+        </div>
 
         <div a href="bingo.html">
           <img src="https://cdn-icons-png.flaticon.com/512/4983/4983961.png" alt="Bingo Game">
-        </a>
+        </div>
       </div>
         
-        <div>
+        <div class="Login">
           <h2>Login</h2>
           <form action="index.html" method="post">
             <input type="text" name="username" placeholder="Username">
@@ -58,7 +61,6 @@
           </form>
         </div>
         
-    </div>
   </div>
 </body>
 </html>
