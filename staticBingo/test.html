@@ -49,6 +49,7 @@
     <div class="turn-message" id="turn-message"></div>
     <div class="winner-message" id="winner-message"></div>
     <button id="next-turn" onclick="nextTurn()">턴 종료</button>
+    <button id="reset-game" onclick="resetGame()">게임 리셋</button>
 
     <script>
         // 빙고 보드 생성
@@ -129,6 +130,24 @@
             // 이기는 조건: 가로, 세로, 대각선 빙고 중 3가지를 달성하면 이긴다.
             
             // 여기에 이긴 경우 처리 로직을 추가해야 합니다.
+        }
+
+        // 게임 리셋
+        function resetGame() {
+            document.querySelectorAll(".bingo-board td.checked").forEach((cell) => {
+                cell.classList.remove("checked");
+            });
+            document.getElementById("winner-message").textContent = "";
+            clearInterval(timerInterval);
+            timer = 15;
+            document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+            currentPlayer = "left";
+            document.getElementById("left-board").classList.add("active-board");
+            document.getElementById("turn-message").textContent = "차례입니다 (왼쪽)";
+            shuffleArray(leftNumbers);
+            shuffleArray(rightNumbers);
+            createBingoBoard("left-board", leftNumbers);
+            createBingoBoard("right-board", rightNumbers);
         }
     </script>
 </body>
