@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 });
 
 
-app.post('/login', (req, res) => {
+app.post('/', (req, res) => {
   // 클라이언트에서 제출한 사용자 이름과 암호를 가져옵니다.
   const submittedUsername = req.body.username;
   const submittedPassword = req.body.password;
@@ -27,7 +27,7 @@ app.post('/login', (req, res) => {
   // 사용자 이름과 암호를 확인하고 로그인 결과를 반환합니다.
   if (submittedUsername === realUsername && submittedPassword === realPassword) {
     // 로그인 성공 시
-    res.send('로그인 성공');
+    res.sendFile(__dirname + '/static/index.html');
   } else {
     // 로그인 실패 시
     res.send('로그인 실패');
