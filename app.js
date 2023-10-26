@@ -11,7 +11,7 @@ app.use(express.json());
 
 // GET 요청으로 index.html 파일을 읽어옵니다.
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(__dirname + '/static/index.html');
 });
 
 // POST 요청으로 로그인 데이터를 받습니다.
@@ -32,12 +32,12 @@ app.post('/login', (req, res) => {
 
 // GET 요청으로 gameOne.html 파일을 읽어옵니다.
 app.get('/gameOne', (req, res) => {
-  res.sendFile(__dirname + '/public/gameOne.html');
+  res.sendFile(__dirname + '/static/gameOne.html');
 });
 
 // GET 요청으로 gameTwo.html 파일을 읽어옵니다.
 app.get('/gameTwo', (req, res) => {
-  res.sendFile(__dirname + '/public/gameTwo.html');
+  res.sendFile(__dirname + '/static/gameTwo.html');
 });
 
 app.listen(port, () => {
