@@ -14,18 +14,22 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/static/index.html');
 });
 
-// POST 요청으로 로그인 데이터를 받습니다.
+
 app.post('/login', (req, res) => {
-  // 이곳에서 POST 데이터를 처리할 수 있습니다.
-  const username = req.body.username;
-  const password = req.body.password;
+  // 클라이언트에서 제출한 사용자 이름과 암호를 가져옵니다.
+  const submittedUsername = req.body.username;
+  const submittedPassword = req.body.password;
 
-  // 로그인 처리 코드를 작성하세요.
+  // 실제 사용자 이름과 암호를 설정합니다. 이 예제에서는 하드코딩하여 비교합니다.
+  const realUsername = 'bingmok';
+  const realPassword = '1234';
 
-  // 예시 응답
-  if (username === 'bingmok' && password === '1234') {
+  // 사용자 이름과 암호를 확인하고 로그인 결과를 반환합니다.
+  if (submittedUsername === realUsername && submittedPassword === realPassword) {
+    // 로그인 성공 시
     res.send('로그인 성공');
   } else {
+    // 로그인 실패 시
     res.send('로그인 실패');
   }
 });
