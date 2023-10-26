@@ -18,8 +18,9 @@
 - bingo
 
 <Directory>
+- bingmok -> app.js
 - bingmok -> static -> html, css
-          -> mod    -> loginmodule
+- bingmok -> mod -> loginmodule
 
 [목표]
 - express 활용
