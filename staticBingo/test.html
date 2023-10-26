@@ -143,11 +143,44 @@
 
         // 빙고 체크
         function checkForBingo(boardId) {
-            // 빙고 체크 로직 구현
+            const board = document.getElementById(boardId);
+            const rows = board.getElementsByTagName("tr");
+            let rowCount = 0;
+            let colCount = 0;
+            let diagCount1 = 0;
+            let diagCount2 = 0;
 
-            // 이기는 조건: 가로, 세로, 대각선 빙고 중 3가지를 달성하면 이긴다.
-            
-            // 여기에 이긴 경우 처리 로직을 추가해야 합니다.
+            for (let i = 0; i < boardSize; i++) {
+                rowCount = 0;
+                colCount = 0;
+
+                for (let j = 0; j < boardSize; j++) {
+                    const cellRow = rows[i];
+                    const cellCol = board.getElementsByTagName("tr")[j];
+                    const cell1 = cellRow.getElementsByTagName("td")[j];
+                    const cell2 = cellCol.getElementsByTagName("td")[i];
+
+                    if (cell1.classList.contains("checked")) rowCount++;
+                    if (cell2.classList.contains("checked")) colCount++;
+
+                    if (i === j && cell1.classList.contains("checked")) diagCount1++;
+                    if (i === j && cell2.classList.contains("checked")) diagCount2++;
+                }
+
+                if (rowCount === boardSize || colCount === boardSize) {
+                    // 가로 또는 세로 빙고
+                    document.getElementById("winner-message").textContent = "빙고! " + currentPlayer + " 플레이어 승리!";
+                    alert(currentPlayer + " 플레이어가 이겼습니다!");
+                    clearInterval(timerInterval);
+                }
+
+                if (diagCount1 === boardSize || diagCount2 === boardSize) {
+                    // 대각선 빙고
+                    document.getElementById("winner-message").textContent = "빙고! " + currentPlayer + " 플레이어 승리!";
+                    alert(currentPlayer + " 플레이어가 이겼습니다!");
+                    clearInterval(timerInterval);
+                }
+            }
         }
 
         // 게임 리셋
