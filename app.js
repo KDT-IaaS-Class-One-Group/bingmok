@@ -11,12 +11,7 @@ app.use(express.json());
 
 // GET 요청으로 index.html 파일을 읽어옵니다.
 app.get('/', (req, res) => {
-  if(req.url==='/'){
-    console.log(`url : ${req.url}`)
     res.sendFile(__dirname + '/static/index.html');
-  } else{
-    console.log('url err')
-  }
 });
 
 
@@ -28,12 +23,12 @@ app.post('/', (req, res) => {
   // 실제 사용자 이름과 암호를 설정합니다. 이 예제에서는 하드코딩하여 비교합니다.
   const realUsername = 'bingmok';
   const realPassword = '1234';
-  
 
   // 사용자 이름과 암호를 확인하고 로그인 결과를 반환합니다.
   if (submittedUsername === realUsername && submittedPassword === realPassword) {
     // 로그인 성공 시
     res.sendFile(__dirname + '/static/index.html');
+    res.send(`<script>document.getElementById('welcom').innerHTML = '환영합니다, ${submittedUsername} 님!';</script>`);
   } else {
     // 로그인 실패 시
     res.send('로그인 실패');
