@@ -4,6 +4,7 @@ const board = Array(14)
 const playerStone = "white"; // 플레이어의 돌 색상 (하얀색)
 const computerStone = "black"; // 컴퓨터의 돌 색상 (검은색)
 let currentPlayer = playerStone;
+let winnerDeclared = false; // 승리자가 선언되었는지 확인하는 변수
 
 const boardElements = document.querySelectorAll("#board > div");
 boardElements.forEach((element, index) => {
@@ -12,9 +13,6 @@ boardElements.forEach((element, index) => {
       const row = Math.floor(index / 14);
       const col = index % 14;
       placeStone(row, col, playerStone);
-      if (checkWin(row, col, playerStone)) {
-        alert("플레이어가 승리했습니다!");
-      }
     }
   });
 });
@@ -57,11 +55,7 @@ function computerMove() {
   if (possibleSpots.length > 0) {
     const randomIndex = Math.floor(Math.random() * possibleSpots.length);
     const { row, col } = possibleSpots[randomIndex];
-
-    // 1초 딜레이 후 돌을 놓도록 설정
-    setTimeout(() => {
-      placeStone(row, col, computerStone);
-    }, 1000);
+    placeStone(row, col, computerStone);
   }
 }
 
@@ -73,8 +67,15 @@ function placeStone(row, col, stone) {
     stoneElement.style.backgroundColor = stone;
     boardElements[row * 14 + col].appendChild(stoneElement);
     currentPlayer = currentPlayer === playerStone ? computerStone : playerStone;
-    if (currentPlayer === computerStone) {
-      computerMove();
+
+    // 승리 확인을 여기서 수행
+    if (checkWin(row, col, stone)) {
+      winnerDeclared = true;
+      alert(`${stone === playerStone ? "플레이어" : "컴퓨터"}가 승리했습니다!`);
+    }
+
+    if (!winnerDeclared && currentPlayer === computerStone) {
+      setTimeout(computerMove, 1000);
     }
   }
 }
@@ -84,7 +85,7 @@ function checkWin(row, col, stone) {
     [1, 0],
     [0, 1],
     [1, 1],
-    [1, -1], // 가로, 세로, 대각선 방향
+    [1, -1],
   ];
 
   for (const [dx, dy] of directions) {
@@ -106,12 +107,6 @@ function checkWin(row, col, stone) {
     }
 
     if (count === 5) {
-      if (!winnerDeclared) {
-        winnerDeclared = true;
-        alert(
-          `${stone === playerStone ? "플레이어" : "컴퓨터"}가 승리했습니다!`
-        );
-      }
       return true;
     }
   }
