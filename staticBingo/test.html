@@ -48,8 +48,8 @@
     <div class="timer" id="timer"></div>
     <div class="turn-message" id="turn-message"></div>
     <div class="winner-message" id="winner-message"></div>
-    <button id="start-game" onclick="startGame()">게임 시작</button>
-    <button id="reset-game" onclick="resetGame()" style="display: none;">게임 리셋</button>
+    <button id="next-turn" onclick="nextTurn()">턴 종료</button>
+    <button id="reset-game" onclick="resetGame()">게임 리셋</button>
 
     <script>
         // 빙고 보드 생성
@@ -93,21 +93,36 @@
 
         // 게임 초기화
         let currentPlayer = "left"; // "left" 또는 "right"
-        let gameStarted = false;
-        document.getElementById("start-game").style.display = "block";
-        document.getElementById("reset-game").style.display = "none";
-
-        function startGame() {
-            if (gameStarted) return;
-            gameStarted = true;
-            document.getElementById("start-game").style.display = "none";
-            document.getElementById("reset-game").style.display = "block";
-
-            document.getElementById(currentPlayer + "-board").classList.add("active-board");
-            document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
-            let timer = 15;
+        document.getElementById(currentPlayer + "-board").classList.add("active-board");
+        document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
+        let timer = 15;
+        document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+        let timerInterval = setInterval(() => {
+            timer--;
             document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
-            let timerInterval = setInterval(() => {
+            if (timer === 0) {
+                cell = getRandomCell(currentPlayer);
+                if (cell) {
+                    cell.classList.add("checked");
+                }
+                nextTurn();
+            }
+        }, 1000);
+
+        function getRandomCell(player) {
+            const board = document.getElementById(player + "-board");
+            const uncheckedCells = board.querySelectorAll("td:not(.checked)");
+            if (uncheckedCells.length === 0) {
+                return null;
+            }
+            return uncheckedCells[Math.floor(Math.random() * uncheckedCells.length)];
+        }
+
+        // 다음 턴으로 진행
+        function nextTurn() {
+            clearInterval(timerInterval);
+            timer = 15;
+            timerInterval = setInterval(() => {
                 timer--;
                 document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
                 if (timer === 0) {
@@ -119,46 +134,20 @@
                 }
             }, 1000);
 
-            function getRandomCell(player) {
-                const board = document.getElementById(player + "-board");
-                const uncheckedCells = board.querySelectorAll("td:not(.checked)");
-                if (uncheckedCells.length === 0) {
-                    return null;
-                }
-                return uncheckedCells[Math.floor(Math.random() * uncheckedCells.length)];
-            }
+            document.getElementById("turn-message").textContent = "";
+            document.getElementById(currentPlayer + "-board").classList.remove("active-board");
+            currentPlayer = currentPlayer === "left" ? "right" : "left";
+            document.getElementById(currentPlayer + "-board").classList.add("active-board");
+            document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
+        }
 
-            // 다음 턴으로 진행
-            function nextTurn() {
-                clearInterval(timerInterval);
-                timer = 15;
-                timerInterval = setInterval(() => {
-                    timer--;
-                    document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
-                    if (timer === 0) {
-                        cell = getRandomCell(currentPlayer);
-                        if (cell) {
-                            cell.classList.add("checked");
-                        }
-                        nextTurn();
-                    }
-                }, 1000);
+        // 빙고 체크
+        function checkForBingo(boardId) {
+            // 빙고 체크 로직 구현
 
-                document.getElementById("turn-message").textContent = "";
-                document.getElementById(currentPlayer + "-board").classList.remove("active-board");
-                currentPlayer = currentPlayer === "left" ? "right" : "left";
-                document.getElementById(currentPlayer + "-board").classList.add("active-board");
-                document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
-            }
-
-            // 빙고 체크
-            function checkForBingo(boardId) {
-                // 빙고 체크 로직 구현
-
-                // 이기는 조건: 가로, 세로, 대각선 빙고 중 3가지를 달성하면 이긴다.
-                
-                // 여기에 이긴 경우 처리 로직을 추가해야 합니다.
-            }
+            // 이기는 조건: 가로, 세로, 대각선 빙고 중 3가지를 달성하면 이긴다.
+            
+            // 여기에 이긴 경우 처리 로직을 추가해야 합니다.
         }
 
         // 게임 리셋
@@ -170,9 +159,6 @@
             clearInterval(timerInterval);
             timer = 15;
             document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
-            gameStarted = false;
-            document.getElementById("start-game").style.display = "block";
-            document.getElementById("reset-game").style.display = "none";
             currentPlayer = "left";
             document.getElementById("left-board").classList.add("active-board");
             document.getElementById("turn-message").textContent = "차례입니다 (왼쪽)";
@@ -187,8 +173,8 @@
             cells.forEach((cell, index) => {
                 cell.textContent = numbers[index];
                 cell.classList.remove("checked");
-            }
-        );
+            });
+        }
     </script>
 </body>
 </html>
