@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    /* CSS 스타일링은 여기에 작성합니다. */
+    .bingo-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .bingo-board {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        gap: 5px;
+    }
+
+    .cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border: 1px solid #000;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .timer {
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .turn-message {
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .next-turn-button {
+        text-align: center;
+        font-size: 20px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+<div class="bingo-container">
+    <div class="bingo-board" id="left-board"></div>
+    <div class="bingo-board" id="right-board"></div>
+</div>
+<div class="timer">30</div>
+<div class="turn-message" id="turn-message"></div>
+<div class="next-turn-button" id="next-turn-button" style="display: none">다음 차례</div>
+
+<script>
+    const leftBoard = document.getElementById("left-board");
+    const rightBoard = document.getElementById("right-board");
+    const turnMessage = document.getElementById("turn-message");
+    const nextTurnButton = document.getElementById("next-turn-button");
+
+    const boards = [leftBoard, rightBoard];
+    const players = ["왼쪽", "오른쪽"];
+    let currentPlayer = 0; // 왼쪽부터 시작
+    let timer = 30;
+    let interval;
+
+    initializeGame();
+
+    function initializeGame() {
+        createBingoBoard(leftBoard);
+        createBingoBoard(rightBoard);
+
+        startTimer();
+
+        displayTurnMessage();
+
+        nextTurnButton.addEventListener("click", nextTurn);
+    }
+
+    function createBingoBoard(board) {
+        board.innerHTML = "";
+        const numbers = generateRandomNumbers(1, 25);
+
+        for (let i = 0; i < 25; i++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.textContent = numbers[i];
+            cell.addEventListener("click", () => cellClickHandler(cell, board));
+            board.appendChild(cell);
+        }
+    }
+
+    function generateRandomNumbers(min, max) {
+        const numbers = [];
+        for (let i = min; i <= max; i++) {
+            numbers.push(i);
+        }
+        for (let i = numbers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+        return numbers;
+    }
+
+    function cellClickHandler(cell, board) {
+        if (cell.textContent === "X" || board !== boards[currentPlayer]) {
+            return;
+        }
+
+        cell.textContent = "X";
+        cell.style.backgroundColor = "lightgray";
+
+        if (checkWin(board)) {
+            showWinnerMessage(players[currentPlayer]);
+            clearInterval(interval);
+        } else {
+            showNextTurnButton();
+            cell.style.pointerEvents = "none"; // 클릭 방지
+        }
+    }
+
+    function nextTurn() {
+        currentPlayer = 1 - currentPlayer;
+        hideNextTurnButton();
+        displayTurnMessage();
+        resetTimer();
+    }
+
+    function displayTurnMessage() {
+        turnMessage.textContent = `차례입니다 (${players[currentPlayer]})`;
+    }
+
+    function startTimer() {
+        clearInterval(interval);
+        timer = 30;
+        interval = setInterval(() => {
+            document.querySelector(".timer").textContent = timer;
+            if (timer <= 0) {
+                nextTurn();
+            }
+            timer--;
+        }, 1000);
+    }
+
+    function resetTimer() {
+        clearInterval(interval);
+        startTimer();
+    }
+
+    function checkWin(board) {
+        const cells = board.getElementsByClassName("cell");
+        const lines = [
+            [0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24], // 가로 빙고
+            [0, 5, 10, 15, 20], [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], [3, 8, 13, 18, 23], [4, 9, 14, 19, 24], // 세로 빙고
+            [0, 6, 12, 18, 24], [4, 8, 12, 16, 20] // 대각선 빙고
+        ];
+
+        for (const line of lines) {
+            if (line.every(index => cells[index].textContent === "X")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function showNextTurnButton() {
+        nextTurnButton.style.display = "block";
+    }
+
+    function hideNextTurnButton() {
+        nextTurnButton.style.display = "none";
+    }
+
+    function showWinnerMessage(winner) {
+        alert(winner + " 빙고판이 이겼습니다");
+    }
+</script>
+</body>
+</html>
