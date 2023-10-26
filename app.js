@@ -28,7 +28,7 @@ app.post('/', (req, res) => {
   if (submittedUsername === realUsername && submittedPassword === realPassword) {
     // 로그인 성공 시
     res.sendFile(__dirname + '/static/index.html');
-    res.send(`<script>document.getElementById('welcom').innerHTML = '환영합니다, ${submittedUsername} 님!';</script>`);
+    // res.send(`<script>document.getElementById('welcom').textContent = '환영합니다, ${submittedUsername} 님!';</script>`);
   } else {
     // 로그인 실패 시
     res.send('로그인 실패');
