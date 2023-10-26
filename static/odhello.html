@@ -33,10 +33,11 @@
         background-color: rgb(227, 136, 38);
       }
       .stone {
-        width: 40px; /* 돌의 너비 설정 */
-        height: 40px; /* 돌의 높이 설정 */
-        border-radius: 50%;
-        position: absolute;
+        width: 50px; /* 돌의 가로 크기 */
+        height: 50px; /* 돌의 세로 크기 */
+        border-radius: 50%; /* 돌을 원 모양으로 만듭니다. */
+        display: inline-block; /* 돌을 가운데로 정렬합니다. */
+        margin: -25px; /* 돌의 가로, 세로 크기의 절반만큼 왼쪽과 위로 이동하여 중앙으로 위치시킵니다. */
       }
     </style>
   </head>
