@@ -35,6 +35,11 @@
         .checked {
             background-color: lightgreen;
         }
+        /* 스타일 추가: 오른쪽 게임판 숫자를 블러 처리 */
+        #right-board td {
+            color: transparent;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -78,7 +83,7 @@
                     cell.addEventListener("click", () => {
                         if (cell.parentElement.parentElement.classList.contains("active-board")) {
                             cell.classList.toggle("checked");
-                            markOpponentBoard(cell.textContent);
+                            markOpponentBoard(currentPlayer === "left" ? "right" : "left", cell.textContent);
                             checkForBingo(boardId);
                             nextTurn();
                         }
@@ -98,18 +103,7 @@
         document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
         let timer = 15;
         document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
-        let timerInterval = setInterval(() => {
-            timer--;
-            document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
-            if (timer === 0) {
-                cell = getRandomCell(currentPlayer);
-                if (cell) {
-                    cell.classList.add("checked");
-                    markOpponentBoard(cell.textContent);
-                    nextTurn();
-                }
-            }
-        }, 1000);
+        let timerInterval;
 
         function getRandomCell(player) {
             const board = document.getElementById(player + "-board");
@@ -120,9 +114,8 @@
             return uncheckedCells[Math.floor(Math.random() * uncheckedCells.length)];
         }
 
-        function markOpponentBoard(number) {
-            const opponentPlayer = currentPlayer === "left" ? "right" : "left";
-            const opponentBoard = document.getElementById(opponentPlayer + "-board");
+        function markOpponentBoard(player, number) {
+            const opponentBoard = document.getElementById(player + "-board");
             const cells = opponentBoard.getElementsByTagName("td");
             for (let i = 0; i < cells.length; i++) {
                 if (cells[i].textContent === number) {
@@ -131,28 +124,47 @@
             }
         }
 
+        function startAITurn() {
+            setTimeout(() => {
+                if (currentPlayer === "right") {
+                    const cell = getRandomCell("right");
+                    if (cell) {
+                        cell.click();
+                    }
+                }
+            }, 5000); // 5초 지연 후 AI의 턴 시작
+        }
+
+        startAITurn(); // 게임 시작 시 AI 턴 시작
+
         // 다음 턴으로 진행
         function nextTurn() {
-            clearInterval(timerInterval);
-            timer = 15;
-            timerInterval = setInterval(() => {
-                timer--;
-                document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
-                if (timer === 0) {
-                    cell = getRandomCell(currentPlayer);
-                    if (cell) {
-                        cell.classList.add("checked");
-                        markOpponentBoard(cell.textContent);
+            if (currentPlayer === "left") {
+                document.getElementById("next-turn").disabled = false; // 왼쪽 플레이어의 턴이 끝나면 버튼 활성화
+                clearInterval(timerInterval);
+                timer = 15;
+                timerInterval = setInterval(() => {
+                    timer--;
+                    document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+                    if (timer === 0) {
+                        const cell = getRandomCell("left");
+                        if (cell) {
+                            cell.click();
+                        }
+                        nextTurn();
                     }
-                    nextTurn();
-                }
-            }, 1000);
+                }, 1000);
+            } else {
+                document.getElementById("next-turn").disabled = true; // 오른쪽 플레이어의 턴에서 버튼 비활성화
+            }
 
             document.getElementById("turn-message").textContent = "";
             document.getElementById(currentPlayer + "-board").classList.remove("active-board");
             currentPlayer = currentPlayer === "left" ? "right" : "left";
             document.getElementById(currentPlayer + "-board").classList.add("active-board");
             document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
+
+            startAITurn(); // AI의 턴 시작
         }
 
         // 빙고 체크
@@ -213,6 +225,8 @@
             shuffleArray(rightNumbers);
             updateBingoBoard("left-board", leftNumbers);
             updateBingoBoard("right-board", rightNumbers);
+
+            startAITurn(); // 게임 리셋 시 AI 턴 다시 시작
         }
 
         function updateBingoBoard(boardId, numbers) {
