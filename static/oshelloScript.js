@@ -57,10 +57,11 @@ function computerMove() {
   if (possibleSpots.length > 0) {
     const randomIndex = Math.floor(Math.random() * possibleSpots.length);
     const { row, col } = possibleSpots[randomIndex];
-    placeStone(row, col, computerStone);
-    if (checkWin(row, col, computerStone)) {
-      alert("컴퓨터가 승리했습니다!");
-    }
+
+    // 1초 딜레이 후 돌을 놓도록 설정
+    setTimeout(() => {
+      placeStone(row, col, computerStone);
+    }, 1000);
   }
 }
 
@@ -79,7 +80,6 @@ function placeStone(row, col, stone) {
 }
 
 function checkWin(row, col, stone) {
-  // (승리 조건 검사 로직 추가)
   const directions = [
     [1, 0],
     [0, 1],
@@ -90,7 +90,6 @@ function checkWin(row, col, stone) {
   for (const [dx, dy] of directions) {
     let count = 1;
 
-    // 현재 돌을 기준으로 주어진 방향으로 검사
     for (let i = 1; i < 5; i++) {
       const newRow = row + i * dx;
       const newCol = col + i * dy;
@@ -106,8 +105,13 @@ function checkWin(row, col, stone) {
       }
     }
 
-    // 5개 돌이 연속으로 놓인 경우 승리
     if (count === 5) {
+      if (!winnerDeclared) {
+        winnerDeclared = true;
+        alert(
+          `${stone === playerStone ? "플레이어" : "컴퓨터"}가 승리했습니다!`
+        );
+      }
       return true;
     }
   }
