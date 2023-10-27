@@ -1,314 +1,240 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>빙고 게임</title>
     <style>
-        /* CSS 스타일링은 여기에 작성합니다. */
         .bingo-container {
             display: flex;
             justify-content: space-between;
         }
-
         .bingo-board {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 5px;
+            border-collapse: collapse;
         }
-
-        .cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .bingo-board, .bingo-board th, .bingo-board td {
+            border: 1px solid black;
+        }
+        .bingo-board th, .bingo-board td {
             width: 50px;
             height: 50px;
-            border: 1px solid #000;
+            text-align: center;
             font-size: 20px;
             cursor: pointer;
         }
-
         .timer {
             text-align: center;
-            font-size: 20px;
+            font-size: 24px;
         }
-
         .turn-message {
             text-align: center;
-            font-size: 20px;
+            font-size: 24px;
         }
-
-        .next-turn-button {
+        .winner-message {
             text-align: center;
-            font-size: 20px;
-            cursor: pointer;
+            font-size: 24px;
         }
-
-        .bingo {
+        .checked {
             background-color: lightgreen;
         }
-
-        .right-board-blur {
-            filter: blur(3px);
+        /* 스타일 추가: 오른쪽 게임판 숫자를 블러 처리 */
+        #right-board td {
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
+    <h1>빙고 게임</h1>
     <div class="bingo-container">
-        <div class="bingo-board" id="left-board"></div>
-        <div class="bingo-board right-board-blur" id="right-board"></div>
+        <table class="bingo-board" id="left-board">
+        </table>
+        <table class="bingo-board" id="right-board">
+        </table>
     </div>
-    <div class="timer">5</div>
+    <div class="timer" id="timer"></div>
     <div class="turn-message" id="turn-message"></div>
-    <div class="next-turn-button" id="next-turn-button" style="display: none">다음 차례</div>
-    <div class="game-reset-button" id="game-reset-button">게임 리셋</div>
+    <div class="winner-message" id="winner-message"></div>
+    <button id="next-turn" onclick="nextTurn()">턴 종료</button>
+    <button id="reset-game" onclick="resetGame()">게임 리셋</button>
 
     <script>
-        const leftBoard = document.getElementById("left-board");
-        const rightBoard = document.getElementById("right-board");
-        const turnMessage = document.getElementById("turn-message");
-        const nextTurnButton = document.getElementById("next-turn-button");
-        const gameResetButton = document.getElementById("game-reset-button");
+        // 빙고 보드 생성
+        const boardSize = 5; // 5x5 빙고
+        const maxNumbers = boardSize * boardSize;
+        const leftNumbers = Array.from({ length: maxNumbers }, (_, index) => index + 1);
+        const rightNumbers = [...leftNumbers]; // 오른쪽 게임판은 왼쪽 게임판과 동일한 숫자 배열을 복사
 
-        const boards = [leftBoard, rightBoard];
-        const players = ["왼쪽", "오른쪽"];
-        let currentPlayer = 0;
-        let timer = 5;
-        let interval;
-        let leftBoardNumbers = [];
-        let rightBoardNumbers = [];
-        let horizontalLinesToWin = 2;
-        let verticalLinesToWin = 2;
-        let winner = null;
-        let leftBoardClicked = false; // 왼쪽 보드에서 클릭 상태 저장
-
-        initializeGame();
-
-        gameResetButton.addEventListener("click", resetGame);
-
-        function initializeGame() {
-            createBingoBoard(leftBoard);
-            createBingoBoard(rightBoard);
-
-            startTimer();
-
-            displayTurnMessage();
-
-            nextTurnButton.addEventListener("click", nextTurn);
-        }
-
-        function createBingoBoard(board) {
-            board.innerHTML = "";
-            const numbers = generateRandomNumbers(1, 25);
-
-            for (let i = 0; i < 25; i++) {
-                const cell = document.createElement("div");
-                cell.className = "cell";
-                cell.textContent = numbers[i];
-                cell.addEventListener("click", () => cellClickHandler(cell, board));
-                board.appendChild(cell);
-
-                if (board === leftBoard) {
-                    leftBoardNumbers.push(numbers[i]);
-                } else {
-                    rightBoardNumbers.push(numbers[i]);
-                }
-            }
-        }
-
-        function generateRandomNumbers(min, max) {
-            const numbers = [];
-            for (let i = min; i <= max; i++) {
-                numbers.push(i);
-            }
-            for (let i = numbers.length - 1; i > 0; i--) {
+        const shuffleArray = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+                [array[i], array[j]] = [array[j], array[i]];
             }
-            return numbers;
+        };
+
+        shuffleArray(leftNumbers);
+        shuffleArray(rightNumbers);
+
+        function createBingoBoard(boardId, numbers) {
+            const bingoBoard = document.getElementById(boardId);
+            for (let i = 0; i < boardSize; i++) {
+                const row = document.createElement("tr");
+                for (let j = 0; j < boardSize; j++) {
+                    const cell = document.createElement("td");
+                    cell.textContent = numbers[i * boardSize + j];
+                    cell.addEventListener("click", () => {
+                        if (cell.parentElement.parentElement.classList.contains("active-board")) {
+                            cell.classList.toggle("checked");
+                            markOpponentBoard(currentPlayer === "left" ? "right" : "left", cell.textContent);
+                            checkForBingo(boardId);
+                            nextTurn();
+                        }
+                    });
+                    row.appendChild(cell);
+                }
+                bingoBoard.appendChild(row);
+            }
         }
 
-        function cellClickHandler(cell, board) {
-            if (cell.textContent === "X" || cell.parentElement !== leftBoard) {
-                return;
+        createBingoBoard("left-board", leftNumbers);
+        createBingoBoard("right-board", rightNumbers);
+
+        // 게임 초기화
+        let currentPlayer = "left"; // "left" 또는 "right"
+        document.getElementById(currentPlayer + "-board").classList.add("active-board");
+        document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
+        let timer = 10; // 10초로 수정
+        document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+        let timerInterval;
+
+        function getRandomCell(player) {
+            const board = document.getElementById(player + "-board");
+            const uncheckedCells = board.querySelectorAll("td:not(.checked)");
+            if (uncheckedCells.length === 0) {
+                return null;
             }
+            return uncheckedCells[Math.floor(Math.random() * uncheckedCells.length)];
+        }
 
-            const selectedNumber = cell.textContent;
-
-            // 왼쪽 빙고판에서 클릭하면 다른 셀이 자동으로 클릭되는 것을 막음
-            leftBoardClicked = true;
-
-            cell.textContent = "X";
-            cell.style.backgroundColor = "lightgray";
-            cell.style.pointerEvents = "none"; // 클릭 방지
-
-            markRightBoard(selectedNumber);
-            markLeftBoard(selectedNumber);
-
-            if (checkWin(leftBoard) || checkWin(rightBoard)) {
-                showWinnerMessage(winner);
-                clearInterval(interval);
-            } else {
-                showNextTurnButton();
-
-                if (currentPlayer === 0) {
-                    moveNextCell();
+        function markOpponentBoard(player, number) {
+            const opponentBoard = document.getElementById(player + "-board");
+            const cells = opponentBoard.getElementsByTagName("td");
+            for (let i = 0; i < cells.length; i++) {
+                if (cells[i].textContent === number) {
+                    cells[i].classList.add("checked");
                 }
             }
         }
 
-        function moveNextCell() {
-            if (leftBoardClicked) {
-                // 왼쪽 보드에서 클릭이 발생한 경우, 오른쪽 보드에 클릭 이벤트를 발생시키지 않음
-                leftBoardClicked = false;
-                return;
-            }
-
-            const rightCells = rightBoard.getElementsByClassName("cell");
-            for (let i = 0; i < rightCells.length; i++) {
-                const cell = rightCells[i];
-                if (cell.textContent === "X") {
-                    continue;
+        function startAITurn() {
+            setTimeout(() => {
+                if (currentPlayer === "right") {
+                    const cell = getRandomCell("right");
+                    if (cell) {
+                        cell.click();
+                    }
                 }
-                const selectedNumber = cell.textContent;
-                cellClickHandler(cell, rightBoard);
-                markLeftBoard(selectedNumber);
-                break;
-            }
+            }, 5000); // 5초 지연 후 AI의 턴 시작
         }
 
-        function markRightBoard(selectedNumber) {
-            const rightCells = rightBoard.getElementsByClassName("cell");
-            for (let i = 0; i < rightCells.length; i++) {
-                const cell = rightCells[i];
-                if (cell.textContent === selectedNumber) {
-                    cell.textContent = "X";
-                    cell.style.backgroundColor = "lightgray";
-                    cell.style.pointerEvents = "none"; // 클릭 방지
-                }
-            }
-        }
+        startAITurn(); // 게임 시작 시 AI 턴 시작
 
-        function markLeftBoard(selectedNumber) {
-            const leftCells = leftBoard.getElementsByClassName("cell");
-            for (let i = 0; i < leftCells.length; i++) {
-                const cell = leftCells[i];
-                if (cell.textContent === selectedNumber) {
-                    cell.textContent = "X";
-                    cell.style.backgroundColor = "lightgray";
-                    cell.style.pointerEvents = "none"; // 클릭 방지
-                }
-            }
-        }
-
+        // 다음 턴으로 진행
         function nextTurn() {
-            currentPlayer = 1 - currentPlayer;
-            hideNextTurnButton();
-            displayTurnMessage();
-            resetTimer();
-            if (currentPlayer === 1) {
-                enableRightBoard();
+            if (currentPlayer === "left") {
+                document.getElementById("next-turn").disabled = false; // 왼쪽 플레이어의 턴이 끝나면 버튼 활성화
+                clearInterval(timerInterval);
+                timer = 10; // 10초로 수정
+                timerInterval = setInterval(() => {
+                    timer--;
+                    document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+                    if (timer === 0) {
+                        const cell = getRandomCell("left");
+                        if (cell) {
+                            cell.click();
+                        }
+                        nextTurn();
+                    }
+                }, 1000);
+            } else {
+                document.getElementById("next-turn").disabled = true; // 오른쪽 플레이어의 턴에서 버튼 비활성화
             }
+
+            document.getElementById("turn-message").textContent = "";
+            document.getElementById(currentPlayer + "-board").classList.remove("active-board");
+            currentPlayer = currentPlayer === "left" ? "right" : "left";
+            document.getElementById(currentPlayer + "-board").classList.add("active-board");
+            document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
+
+            startAITurn(); // AI의 턴 시작
         }
 
-        function displayTurnMessage() {
-            turnMessage.textContent = `차례입니다 (${players[currentPlayer]})`;
-        }
+        // 빙고 체크
+        function checkForBingo(boardId) {
+            const board = document.getElementById(boardId);
+            const rows = board.getElementsByTagName("tr");
+            let rowCount = 0;
+            let colCount = 0;
+            let diagCount1 = 0;
+            let diagCount2 = 0;
 
-        function startTimer() {
-            clearInterval(interval);
-            timer = 5;
-            interval = setInterval(() => {
-                document.querySelector(".timer").textContent = timer;
-                if (timer <= 0) {
-                    nextTurn();
+            for (let i = 0; i < boardSize; i++) {
+                rowCount = 0;
+                colCount = 0;
+
+                for (let j = 0; j < boardSize; j++) {
+                    const cellRow = rows[i];
+                    const cellCol = board.getElementsByTagName("tr")[j];
+                    const cell1 = cellRow.getElementsByTagName("td")[j];
+                    const cell2 = cellCol.getElementsByTagName("td")[i];
+
+                    if (cell1.classList.contains("checked")) rowCount++;
+                    if (cell2.classList.contains("checked")) colCount++;
+
+                    if (i === j && cell1.classList.contains("checked")) diagCount1++;
+                    if (i === j && cell2.classList.contains("checked")) diagCount2++;
                 }
-                timer--;
-            }, 1000);
-        }
 
-        function resetTimer() {
-            clearInterval(interval);
-            startTimer();
-        }
+                if (rowCount === boardSize || colCount === boardSize) {
+                    // 가로 또는 세로 빙고
+                    document.getElementById("winner-message").textContent = "빙고! " + currentPlayer + " 플레이어 승리!";
+                    alert(currentPlayer + " 플레이어가 이겼습니다!");
+                    clearInterval(timerInterval);
+                }
 
-        function checkWin(board) {
-            const cells = board.getElementsByClassName("cell");
-            const lines = [
-                [0, 1, 2, 3, 4],
-                [5, 6, 7, 8, 9],
-                [10, 11, 12, 13, 14],
-                [15, 16, 17, 18, 19],
-                [20, 21, 22, 23, 24],
-                [0, 5, 10, 15, 20],
-                [1, 6, 11, 16, 21],
-                [2, 7, 12, 17, 22],
-                [3, 8, 13, 18, 23],
-                [4, 9, 14, 19, 24],
-                [0, 6, 12, 18, 24],
-                [4, 8, 12, 16, 20]
-            ];
-
-            let linesCompleted = 0;
-            for (const line of lines) {
-                if (line.every(index => cells[index].textContent === "X")) {
-                    linesCompleted++;
+                if (diagCount1 === boardSize || diagCount2 === boardSize) {
+                    // 대각선 빙고
+                    document.getElementById("winner-message").textContent = "빙고! " + currentPlayer + " 플레이어 승리!";
+                    alert(currentPlayer + " 플레이어가 이겼습니다!");
+                    clearInterval(timerInterval);
                 }
             }
-
-            if (linesCompleted >= 2) {
-                winner = board;
-                return true;
-            }
-
-            return false;
         }
 
-        function showNextTurnButton() {
-            nextTurnButton.style.display = "block";
-        }
-
-        function hideNextTurnButton() {
-            nextTurnButton.style.display = "none";
-        }
-
-        function showWinnerMessage(winner) {
-            if (winner === leftBoard) {
-                alert("왼쪽 빙고판이 이겼습니다");
-            } else if (winner === rightBoard) {
-                alert("오른쪽 빙고판이 이겼습니다");
-            }
-        }
-
-        function enableRightBoard() {
-            const rightCells = rightBoard.getElementsByClassName("cell");
-            for (let i = 0; i < rightCells.length; i++) {
-                const cell = rightCells[i];
-                if (cell.textContent === "X") {
-                    continue;
-                }
-                cell.style.pointerEvents = "auto";
-            }
-        }
-
+        // 게임 리셋
         function resetGame() {
-            boards.forEach(board => {
-                board.classList.remove("bingo");
-                board.classList.remove("right-board-blur");
+            document.querySelectorAll(".bingo-board td.checked").forEach((cell) => {
+                cell.classList.remove("checked");
             });
-            winner = null;
-            horizontalLinesToWin = 2;
-            verticalLinesToWin = 2;
-            leftBoardNumbers = [];
-            rightBoardNumbers = [];
-            createBingoBoard(leftBoard);
-            createBingoBoard(rightBoard);
-            clearInterval(interval);
-            timer = 5;
-            startTimer();
-            hideNextTurnButton();
-            displayTurnMessage();
-            currentPlayer = 0;
-            enableRightBoard();
-            rightBoard.classList.add("right-board-blur");
+            document.getElementById("winner-message").textContent = "";
+            clearInterval(timerInterval);
+            timer = 10; // 10초로 수정
+            document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+            currentPlayer = "left";
+            document.getElementById("left-board").classList.add("active-board");
+            document.getElementById("turn-message").textContent = "차례입니다 (왼쪽)";
+            shuffleArray(leftNumbers);
+            shuffleArray(rightNumbers);
+            updateBingoBoard("left-board", leftNumbers);
+            updateBingoBoard("right-board", rightNumbers);
+
+            startAITurn(); // 게임 리셋 시 AI 턴 다시 시작
+        }
+
+        function updateBingoBoard(boardId, numbers) {
+            const cells = document.querySelectorAll(`#${boardId} td`);
+            cells.forEach((cell, index) => {
+                cell.textContent = numbers[index];
+                cell.classList.remove("checked");
+            });
         }
     </script>
 </body>
