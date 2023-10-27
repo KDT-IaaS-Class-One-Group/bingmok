@@ -35,7 +35,7 @@
         .checked {
             background-color: lightgreen;
         }
-        /* 스타일 추가: 오른쪽 게임판 숫자를 블러 처리 (진하게) */
+        /* 스타일 추가: 오른쪽 게임판 숫자를 블러 처리 */
         #right-board td {
             color: transparent;
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -57,6 +57,7 @@
     <button id="reset-game" onclick="resetGame()">게임 리셋</button>
 
     <script>
+        // 빙고 보드 생성
         const boardSize = 5; // 5x5 빙고
         const maxNumbers = boardSize * boardSize;
         const leftNumbers = Array.from({ length: maxNumbers }, (_, index) => index + 1);
@@ -84,9 +85,7 @@
                             cell.classList.toggle("checked");
                             markOpponentBoard(currentPlayer === "left" ? "right" : "left", cell.textContent);
                             checkForBingo(boardId);
-                            if (!checkForWinner()) {
-                                nextTurn();
-                            }
+                            nextTurn();
                         }
                     });
                     row.appendChild(cell);
@@ -102,7 +101,7 @@
         let currentPlayer = "left"; // "left" 또는 "right"
         document.getElementById(currentPlayer + "-board").classList.add("active-board");
         document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
-        let timer = 15;
+        let timer = 10; // 10초로 수정
         document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
         let timerInterval;
 
@@ -143,7 +142,7 @@
             if (currentPlayer === "left") {
                 document.getElementById("next-turn").disabled = false; // 왼쪽 플레이어의 턴이 끝나면 버튼 활성화
                 clearInterval(timerInterval);
-                timer = 15;
+                timer = 10; // 10초로 수정
                 timerInterval = setInterval(() => {
                     timer--;
                     document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
@@ -152,9 +151,7 @@
                         if (cell) {
                             cell.click();
                         }
-                        if (!checkForWinner()) {
-                            nextTurn();
-                        }
+                        nextTurn();
                     }
                 }, 1000);
             } else {
@@ -212,44 +209,6 @@
             }
         }
 
-        // 게임 종료 조건 확인
-        function checkForWinner() {
-            const leftBoard = document.getElementById("left-board");
-            const rightBoard = document.getElementById("right-board");
-
-            // 두 게임판 모두 빙고가 나오면 게임 종료
-            if (isBingo(leftBoard) && isBingo(rightBoard)) {
-                document.getElementById("winner-message").textContent = "무승부!";
-                alert("무승부입니다!");
-                clearInterval(timerInterval);
-                return true;
-            }
-
-            return false;
-        }
-
-        // 빙고 확인 함수
-        function isBingo(board) {
-            const rows = board.getElementsByTagName("tr");
-            for (let i = 0; i < boardSize; i++) {
-                let rowCount = 0;
-                let colCount = 0;
-                for (let j = 0; j < boardSize; j++) {
-                    const cellRow = rows[i];
-                    const cellCol = board.getElementsByTagName("tr")[j];
-                    const cell1 = cellRow.getElementsByTagName("td")[j];
-                    const cell2 = cellCol.getElementsByTagName("td")[i];
-
-                    if (cell1.classList.contains("checked")) rowCount++;
-                    if (cell2.classList.contains("checked")) colCount++;
-                }
-                if (rowCount === boardSize || colCount === boardSize) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         // 게임 리셋
         function resetGame() {
             document.querySelectorAll(".bingo-board td.checked").forEach((cell) => {
@@ -257,7 +216,7 @@
             });
             document.getElementById("winner-message").textContent = "";
             clearInterval(timerInterval);
-            timer = 15;
+            timer = 10; // 10초로 수정
             document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
             currentPlayer = "left";
             document.getElementById("left-board").classList.add("active-board");
