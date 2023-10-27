@@ -49,7 +49,7 @@ app.post('/', (req, res) => {
 });
 
 app.get('/static/odhello.html', (req, res) => {
-  res.send('로그인하고 오시오');
+  res.send('로그인 하시오');
 });
 
 
