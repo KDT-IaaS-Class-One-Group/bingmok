@@ -27,7 +27,7 @@ app.post('/', (req, res) => {
   // 사용자 이름과 암호를 확인하고 로그인 결과를 반환합니다.
   if (submittedUsername === realUsername && submittedPassword === realPassword) {
     // 로그인 성공 시
-    res.sendFile(__dirname + '/static/index.html');
+    res.sendFile(__dirname + '/static/afterlogin.html');
 
     // GET 요청으로 gameOne.html 파일을 읽어옵니다.
     app.get('/static/odhello.html', (req, res) => {
