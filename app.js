@@ -36,13 +36,13 @@ app.post('/', (req, res) => {
 });
 
 // GET 요청으로 gameOne.html 파일을 읽어옵니다.
-app.get('/odhello', (req, res) => {
+app.get('http://localhost:3000/odhello.html', (req, res) => {
   res.sendFile(__dirname + '/static/odhello.html');
 });
 
 // GET 요청으로 gameTwo.html 파일을 읽어옵니다.
 app.get('/bingo', (req, res) => {
-  res.sendFile(__dirname + '/static/gameTwo.html');
+  res.sendFile(__dirname + '//static/odhello.html');
 });
 
 app.listen(port, () => {
