@@ -36,7 +36,7 @@ app.post('/', (req, res) => {
 });
 
 // GET 요청으로 gameOne.html 파일을 읽어옵니다.
-app.get('/odhello', (req, res) => {
+app.get('/static/odhello.html', (req, res) => {
   res.sendFile(__dirname + '/static/odhello.html');
 });
 
