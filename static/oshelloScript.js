@@ -24,7 +24,7 @@ function computerMove() {
     const emptySpots = [];
     const playerSpots = [];
 
-    // 플레이어가 놓은 돌 주변의 위치 수집
+    // 플레이어가 놓은 돌 주변의 위치 수집-
     for (let row = 0; row < boardSize; row++) {
       for (let col = 0; col < boardSize; col++) {
         if (board[row][col] === playerStone) {
