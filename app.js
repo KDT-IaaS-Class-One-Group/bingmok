@@ -37,7 +37,7 @@ app.post('/', (req, res) => {
       });
     });
     // GET 요청으로 gameTwo.html 파일을 읽어옵니다.
-    app.get('/static/bingo.', (req, res) => {
+    app.get('/static/bingo.html', (req, res) => {
       res.sendFile(__dirname + '/static/bingo.html');
     });
 
