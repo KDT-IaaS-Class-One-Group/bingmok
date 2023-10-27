@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 
 // 정적 파일 서빙을 설정합니다.
-app.use(express.static('public'));
+app.use(express.static('static'));
 
 // Body 파서 설정 (POST 요청의 body를 파싱하기 위해)
 app.use(express.urlencoded({ extended: true }));
@@ -36,13 +36,13 @@ app.post('/', (req, res) => {
 });
 
 // GET 요청으로 gameOne.html 파일을 읽어옵니다.
-app.get('http://localhost:3000/odhello.html', (req, res) => {
+app.get('/odhello', (req, res) => {
   res.sendFile(__dirname + '/static/odhello.html');
 });
 
 // GET 요청으로 gameTwo.html 파일을 읽어옵니다.
 app.get('/bingo', (req, res) => {
-  res.sendFile(__dirname + '//static/odhello.html');
+  res.sendFile(__dirname + '/static/odhello.html');
 });
 
 app.listen(port, () => {
