@@ -1,131 +1,215 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
     <style>
-    .board {
-    width: 300px;
-    height: 250px;
-    display: inline-block;
-    vertical-align: top;
-    border: 1px solid #000;
-    margin: 10px;
-    padding: 10px;
-}
+        /* CSS 스타일링은 여기에 작성합니다. */
+        .bingo-container {
+            display: flex;
+            justify-content: space-between;
+        }
 
-button {
-    margin: 10px;
-}
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 5px;
+        }
 
-h2 {
-    text-align: center;
-}
+        .cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border: 1px solid #000;
+            font-size: 20px;
+            cursor: pointer;
+        }
 
-.cell {
-    width: 48px;
-    height: 48px;
-    border: 1px solid #ccc;
-    display: inline-block;
-    text-align: center;
-    margin: 2px;
-    cursor: pointer;
-}
+        .timer {
+            text-align: center;
+            font-size: 20px;
+        }
 
-/* Left board is sky blue */
-#left-board {
-    background-color: skyblue;
-}
+        .turn-message {
+            text-align: center;
+            font-size: 20px;
+        }
 
-/* Right board is pink */
-#right-board {
-    background-color: pink;
-}
-
+        .next-turn-button {
+            text-align: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-        <div class="board" id="left-board">
-            <h2>Left Board</h2>
-        </div>
-        <div class="board" id="right-board">
-            <h2>Right Board</h2>
-        </div>
-        <button id="start-game">Start Game</button>
-       
+    <div class="bingo-container">
+        <div class="bingo-board" id="left-board"></div>
+        <div class="bingo-board" id="right-board"></div>
+    </div>
+    <div class="timer">30</div>
+    <div class="turn-message" id="turn-message"></div>
+    <div class="next-turn-button" id="next-turn-button" style="display: none">다음 차례</div>
+
     <script>
-   const leftBoard = document.getElementById('left-board');
-const rightBoard = document.getElementById('right-board');
-const startGameButton = document.getElementById('start-game');
-const cellCount = 25;
-let leftNumbers = [];
-let rightNumbers = [];
-let leftPickedNumbers = [];
-let rightPickedNumbers = [];
+        const leftBoard = document.getElementById("left-board");
+        const rightBoard = document.getElementById("right-board");
+        const turnMessage = document.getElementById("turn-message");
+        const nextTurnButton = document.getElementById("next-turn-button");
 
-// Initialize boards
-function initializeBoards() {
-    leftNumbers = generateRandomNumbers();
-    rightNumbers = generateRandomNumbers();
-    renderBoard(leftBoard, leftNumbers, leftPickedNumbers);
-    renderBoard(rightBoard, rightNumbers, rightPickedNumbers);
-}
+        const boards = [leftBoard, rightBoard];
+        const players = ["왼쪽", "오른쪽"];
+        let currentPlayer = 0; // 왼쪽부터 시작
+        let timer = 30;
+        let interval;
+        let leftBoardNumbers = [];
+        let rightBoardNumbers = [];
 
-// Generate an array of random numbers from 1 to 25
-function generateRandomNumbers() {
-    const numbers = [];
-    while (numbers.length < cellCount) {
-        const num = Math.floor(Math.random() * 25) + 1;
-        if (!numbers.includes(num)) {
-            numbers.push(num);
+        initializeGame();
+
+        function initializeGame() {
+            createBingoBoard(leftBoard);
+            createBingoBoard(rightBoard);
+
+            startTimer();
+
+            displayTurnMessage();
+
+            nextTurnButton.addEventListener("click", nextTurn);
         }
-    }
-    return numbers;
-}
 
-// Render the given board with numbers
-function renderBoard(board, numbers, pickedNumbers) {
-    board.innerHTML = '';
-    for (let i = 0; i < cellCount; i++) {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.textContent = numbers[i];
-        cell.addEventListener('click', () => onCellClick(cell, pickedNumbers));
-        if (pickedNumbers.includes(numbers[i])) {
-            cell.style.backgroundColor = 'blue';
-        }
-        board.appendChild(cell);
-    }
-}
+        function createBingoBoard(board) {
+            board.innerHTML = "";
+            const numbers = generateRandomNumbers(1, 25);
 
-// Handle cell click
-function onCellClick(cell, pickedNumbers) {
-    if (pickedNumbers.length >= 15) return;
-    const number = parseInt(cell.textContent);
-    if (!pickedNumbers.includes(number)) {
-        cell.style.backgroundColor = 'blue';
-        pickedNumbers.push(number);
-        if (pickedNumbers.length === 15) {
-            if (pickedNumbers === leftPickedNumbers) {
-                alert("Left Board wins!");
-            } else {
-                alert("Right Board wins!");
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                cell.textContent = numbers[i];
+                cell.addEventListener("click", () => cellClickHandler(cell));
+                board.appendChild(cell);
+
+                if (board === leftBoard) {
+                    leftBoardNumbers.push(numbers[i]);
+                } else {
+                    rightBoardNumbers.push(numbers[i]);
+                }
             }
         }
-    }
-}
 
-// Start the game
-startGameButton.addEventListener('click', () => {
-    initializeBoards();
-});
+        function generateRandomNumbers(min, max) {
+            const numbers = [];
+            for (let i = min; i <= max; i++) {
+                numbers.push(i);
+            }
+            for (let i = numbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+            return numbers;
+        }
 
-// Initialize the game
-initializeBoards();
+        function cellClickHandler(cell) {
+            if (cell.textContent === "X" || cell.parentElement !== leftBoard) {
+                return;
+            }
 
+            cell.textContent = "X";
+            cell.style.backgroundColor = "lightgray";
 
+            if (checkWin(leftBoard) || checkWin(rightBoard)) {
+                showWinnerMessage(players[currentPlayer]);
+                clearInterval(interval);
+            } else {
+                showNextTurnButton();
+                cell.style.pointerEvents = "none"; // 클릭 방지
+                if (currentPlayer === 0) {
+                    moveNextCell(); // 왼쪽 빙고판에서 숫자를 클릭하고 난 후 다음 숫자로 이동
+                }
+            }
+        }
+
+        function moveNextCell() {
+            const rightCells = rightBoard.getElementsByClassName("cell");
+            for (let i = 0; i < rightCells.length; i++) {
+                const cell = rightCells[i];
+                if (cell.textContent !== "X") {
+                    cellClickHandler(cell);
+                    break;
+                }
+            }
+        }
+
+        function nextTurn() {
+            currentPlayer = 1 - currentPlayer;
+            hideNextTurnButton();
+            displayTurnMessage();
+            resetTimer();
+            if (currentPlayer === 1) {
+                enableRightBoard();
+            }
+        }
+
+        function displayTurnMessage() {
+            turnMessage.textContent = `차례입니다 (${players[currentPlayer]})`;
+        }
+
+        function startTimer() {
+            clearInterval(interval);
+            timer = 30;
+            interval = setInterval(() => {
+                document.querySelector(".timer").textContent = timer;
+                if (timer <= 0) {
+                    nextTurn();
+                }
+                timer--;
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(interval);
+            startTimer();
+        }
+
+        function checkWin(board) {
+            const cells = board.getElementsByClassName("cell");
+            const lines = [
+                [0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24], // 가로 빙고
+                [0, 5, 10, 15, 20], [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], [3, 8, 13, 18, 23], [4, 9, 14, 19, 24], // 세로 빙고
+                [0, 6, 12, 18, 24], [4, 8, 12, 16, 20] // 대각선 빙고
+            ];
+
+            for (const line of lines) {
+                if (line.every(index => cells[index].textContent === "X")) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        function showNextTurnButton() {
+            nextTurnButton.style.display = "block";
+        }
+
+        function hideNextTurnButton() {
+            nextTurnButton.style.display = "none";
+        }
+
+        function showWinnerMessage(winner) {
+            alert(winner + " 빙고판이 이겼습니다");
+        }
+
+        function enableRightBoard() {
+            const rightCells = rightBoard.getElementsByClassName("cell");
+            for (let i = 0; i < rightCells.length; i++) {
+                const cell = rightCells[i];
+                if (cell.textContent !== "X") {
+                    cell.style.pointerEvents = "auto"; // 오른쪽 빙고판 클릭 가능하게 함
+                }
+            }
+        }
     </script>
 </body>
 </html>
-
