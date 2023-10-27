@@ -32,14 +32,13 @@ app.post('/', (req, res) => {
     // GET 요청으로 gameOne.html 파일을 읽어옵니다.
     app.get('/static/odhello.html', (req, res) => {
       res.sendFile(__dirname + '/static/odhello.html');
+      app.get('/static/oshelloScript.js', (req, res) => {
+        res.sendFile(__dirname + '/static/oshelloScript.js');
+      });
     });
-    app.get('/static/oshelloScript.js', (req, res) => {
-      res.sendFile(__dirname + '/static/oshelloScript.js');
-    });
-
     // GET 요청으로 gameTwo.html 파일을 읽어옵니다.
-    app.get('/bingo', (req, res) => {
-      res.sendFile(__dirname + '/static/odhello.html');
+    app.get('/static/bingo.', (req, res) => {
+      res.sendFile(__dirname + '/static/bingo.html');
     });
 
   } else {
