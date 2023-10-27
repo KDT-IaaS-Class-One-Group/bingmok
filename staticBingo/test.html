@@ -42,6 +42,29 @@
             font-size: 20px;
             cursor: pointer;
         }
+<<<<<<< HEAD
+=======
+        .timer {
+            text-align: center;
+            font-size: 24px;
+        }
+        .turn-message {
+            text-align: center;
+            font-size: 24px;
+        }
+        .winner-message {
+            text-align: center;
+            font-size: 24px;
+        }
+        .checked {
+            background-color: lightgreen;
+        }
+        /* 스타일 추가: 오른쪽 게임판 숫자를 블러 처리 */
+        #right-board td {
+            color: transparent;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+>>>>>>> origin/bingoTest
     </style>
 </head>
 <body>
@@ -69,6 +92,7 @@
 
         initializeGame();
 
+<<<<<<< HEAD
         function initializeGame() {
             createBingoBoard(leftBoard);
             createBingoBoard(rightBoard);
@@ -95,10 +119,29 @@
                     leftBoardNumbers.push(numbers[i]);
                 } else {
                     rightBoardNumbers.push(numbers[i]);
+=======
+        function createBingoBoard(boardId, numbers) {
+            const bingoBoard = document.getElementById(boardId);
+            for (let i = 0; i < boardSize; i++) {
+                const row = document.createElement("tr");
+                for (let j = 0; j < boardSize; j++) {
+                    const cell = document.createElement("td");
+                    cell.textContent = numbers[i * boardSize + j];
+                    cell.addEventListener("click", () => {
+                        if (cell.parentElement.parentElement.classList.contains("active-board")) {
+                            cell.classList.toggle("checked");
+                            markOpponentBoard(currentPlayer === "left" ? "right" : "left", cell.textContent);
+                            checkForBingo(boardId);
+                            nextTurn();
+                        }
+                    });
+                    row.appendChild(cell);
+>>>>>>> origin/bingoTest
                 }
             }
         }
 
+<<<<<<< HEAD
         function generateRandomNumbers(min, max) {
             const numbers = [];
             for (let i = min; i <= max; i++) {
@@ -127,10 +170,39 @@
                 cell.style.pointerEvents = "none"; // 클릭 방지
                 if (currentPlayer === 0) {
                     moveNextCell(); // 왼쪽 빙고판에서 숫자를 클릭하고 난 후 다음 숫자로 이동
+=======
+        createBingoBoard("left-board", leftNumbers);
+        createBingoBoard("right-board", rightNumbers);
+
+        // 게임 초기화
+        let currentPlayer = "left"; // "left" 또는 "right"
+        document.getElementById(currentPlayer + "-board").classList.add("active-board");
+        document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
+        let timer = 15;
+        document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+        let timerInterval;
+
+        function getRandomCell(player) {
+            const board = document.getElementById(player + "-board");
+            const uncheckedCells = board.querySelectorAll("td:not(.checked)");
+            if (uncheckedCells.length === 0) {
+                return null;
+            }
+            return uncheckedCells[Math.floor(Math.random() * uncheckedCells.length)];
+        }
+
+        function markOpponentBoard(player, number) {
+            const opponentBoard = document.getElementById(player + "-board");
+            const cells = opponentBoard.getElementsByTagName("td");
+            for (let i = 0; i < cells.length; i++) {
+                if (cells[i].textContent === number) {
+                    cells[i].classList.add("checked");
+>>>>>>> origin/bingoTest
                 }
             }
         }
 
+<<<<<<< HEAD
         function moveNextCell() {
             const rightCells = rightBoard.getElementsByClassName("cell");
             for (let i = 0; i < rightCells.length; i++) {
@@ -142,8 +214,23 @@
                 break;
             }
         }
+=======
+        function startAITurn() {
+            setTimeout(() => {
+                if (currentPlayer === "right") {
+                    const cell = getRandomCell("right");
+                    if (cell) {
+                        cell.click();
+                    }
+                }
+            }, 5000); // 5초 지연 후 AI의 턴 시작
+        }
+
+        startAITurn(); // 게임 시작 시 AI 턴 시작
+>>>>>>> origin/bingoTest
 
         function nextTurn() {
+<<<<<<< HEAD
             currentPlayer = 1 - currentPlayer;
             hideNextTurnButton();
             displayTurnMessage();
@@ -212,6 +299,104 @@
                 }
                 cell.style.pointerEvents = "auto"; // 오른쪽 빙고판 클릭 가능하게 함
             }
+=======
+            if (currentPlayer === "left") {
+                document.getElementById("next-turn").disabled = false; // 왼쪽 플레이어의 턴이 끝나면 버튼 활성화
+                clearInterval(timerInterval);
+                timer = 15;
+                timerInterval = setInterval(() => {
+                    timer--;
+                    document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+                    if (timer === 0) {
+                        const cell = getRandomCell("left");
+                        if (cell) {
+                            cell.click();
+                        }
+                        nextTurn();
+                    }
+                }, 1000);
+            } else {
+                document.getElementById("next-turn").disabled = true; // 오른쪽 플레이어의 턴에서 버튼 비활성화
+            }
+
+            document.getElementById("turn-message").textContent = "";
+            document.getElementById(currentPlayer + "-board").classList.remove("active-board");
+            currentPlayer = currentPlayer === "left" ? "right" : "left";
+            document.getElementById(currentPlayer + "-board").classList.add("active-board");
+            document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
+
+            startAITurn(); // AI의 턴 시작
+        }
+
+        // 빙고 체크
+        function checkForBingo(boardId) {
+            const board = document.getElementById(boardId);
+            const rows = board.getElementsByTagName("tr");
+            let rowCount = 0;
+            let colCount = 0;
+            let diagCount1 = 0;
+            let diagCount2 = 0;
+
+            for (let i = 0; i < boardSize; i++) {
+                rowCount = 0;
+                colCount = 0;
+
+                for (let j = 0; j < boardSize; j++) {
+                    const cellRow = rows[i];
+                    const cellCol = board.getElementsByTagName("tr")[j];
+                    const cell1 = cellRow.getElementsByTagName("td")[j];
+                    const cell2 = cellCol.getElementsByTagName("td")[i];
+
+                    if (cell1.classList.contains("checked")) rowCount++;
+                    if (cell2.classList.contains("checked")) colCount++;
+
+                    if (i === j && cell1.classList.contains("checked")) diagCount1++;
+                    if (i === j && cell2.classList.contains("checked")) diagCount2++;
+                }
+
+                if (rowCount === boardSize || colCount === boardSize) {
+                    // 가로 또는 세로 빙고
+                    document.getElementById("winner-message").textContent = "빙고! " + currentPlayer + " 플레이어 승리!";
+                    alert(currentPlayer + " 플레이어가 이겼습니다!");
+                    clearInterval(timerInterval);
+                }
+
+                if (diagCount1 === boardSize || diagCount2 === boardSize) {
+                    // 대각선 빙고
+                    document.getElementById("winner-message").textContent = "빙고! " + currentPlayer + " 플레이어 승리!";
+                    alert(currentPlayer + " 플레이어가 이겼습니다!");
+                    clearInterval(timerInterval);
+                }
+            }
+        }
+
+        // 게임 리셋
+        function resetGame() {
+            document.querySelectorAll(".bingo-board td.checked").forEach((cell) => {
+                cell.classList.remove("checked");
+            });
+            document.getElementById("winner-message").textContent = "";
+            clearInterval(timerInterval);
+            timer = 15;
+            document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+            currentPlayer = "left";
+            document.getElementById("left-board").classList.add("active-board");
+            document.getElementById("turn-message").textContent = "차례입니다 (왼쪽)";
+            shuffleArray(leftNumbers);
+            shuffleArray(rightNumbers);
+            updateBingoBoard("left-board", leftNumbers);
+            updateBingoBoard("right-board", rightNumbers);
+
+            startAITurn(); // 게임 리셋 시 AI 턴 다시 시작
+        }
+
+        function updateBingoBoard(boardId, numbers) {
+            const cells = document.querySelectorAll(`#${boardId} td`);
+            cells.forEach((cell, index) => {
+                cell.textContent = numbers[index];
+                cell.classList.remove("checked");
+            });
+>>>>>>> origin/bingoTest
         }
     </script>
 </body>
