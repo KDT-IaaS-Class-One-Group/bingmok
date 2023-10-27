@@ -48,13 +48,6 @@ app.post('/', (req, res) => {
   }
 });
 
-app.get('/static/odhello.html', (req, res) => {
-  res.send('로그인 하시오');
-});
-
-
-
-
 
 app.listen(port, () => {
   console.log(`
