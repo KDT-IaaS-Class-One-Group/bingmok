@@ -1,8 +1,8 @@
 const board = Array(15)
   .fill()
   .map(() => Array(15).fill(0));
-const playerStone = "white"; // 플레이어의 돌 색상 (하얀색)
-const computerStone = "black"; // 컴퓨터의 돌 색상 (검은색)
+const playerStone = "black"; // 플레이어의 돌 색상 (하얀색)
+const computerStone = "white"; // 컴퓨터의 돌 색상 (검은색)
 let currentPlayer = playerStone;
 let winnerDeclared = false; // 승리자가 선언되었는지 확인하는 변수
 
