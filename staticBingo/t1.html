@@ -7,7 +7,6 @@
             display: flex;
             justify-content: space-between;
         }
-
         
         .bingo-board {
             display: grid;
@@ -49,26 +48,28 @@
         <div class="bingo-board" id="left-board"></div>
         <div class="bingo-board" id="right-board"></div>
     </div>
-    <div class="timer">30</div>
+    <div class="timer">5</div>
     <div class="turn-message" id="turn-message"></div>
     <div class="next-turn-button" id="next-turn-button" style="display: none">다음 차례</div>
+    <button id="reset-button">게임 리셋</button>
 
     <script>
         const leftBoard = document.getElementById("left-board");
         const rightBoard = document.getElementById("right-board");
         const turnMessage = document.getElementById("turn-message");
         const nextTurnButton = document.getElementById("next-turn-button");
+        const resetButton = document.getElementById("reset-button");
 
         const boards = [leftBoard, rightBoard];
         const players = ["왼쪽", "오른쪽"];
         let currentPlayer = 0; // 왼쪽부터 시작
-        let timer = 30;
+        let timer = 5; // 제한 시간 5초로 수정
         let interval;
         let leftBoardNumbers = [];
         let rightBoardNumbers = [];
 
         initializeGame();
-        // 게임을 초기화하고 빙고 보드를 생성하며, 타이머를 시작하고 턴 메시지를 표시하는 함수입니다.
+
         function initializeGame() {
             createBingoBoard(leftBoard);
             createBingoBoard(rightBoard);
@@ -78,11 +79,11 @@
             displayTurnMessage();
 
             nextTurnButton.addEventListener("click", nextTurn);
+            resetButton.addEventListener("click", resetGame); // 게임 리셋 버튼 리스너 추가
         }
-        // 빙고 보드를 생성하고 랜덤한 숫자를 배치합니다. 이 함수는 왼쪽과 오른쪽 보드 각각에 대해 호출되며, 랜덤한 숫자를 생성하여 빙고 보드를 구성합니다.
+
         function createBingoBoard(board) {
             board.innerHTML = "";
-            // 지정된 범위 내의 숫자를 무작위로 생성하는 함수입니다.
             const numbers = generateRandomNumbers(1, 25);
 
             for (let i = 0; i < 25; i++) {
@@ -111,14 +112,14 @@
             }
             return numbers;
         }
-        // 빙고 보드 셀을 클릭할 때 호출되는 함수로, 클릭한 셀을 처리하고 승리 여부를 확인합니다.
+
         function cellClickHandler(cell) {
             if (cell.textContent === "X" || cell.parentElement !== leftBoard) {
                 return;
             }
 
             cell.textContent = "X";
-            cell.style.backgroundColor = "lightgray";
+            cell.style.backgroundColor = "lightgreen"; // 클릭한 셀에 초록색 배경 추가
 
             if (checkWin(leftBoard) || checkWin(rightBoard)) {
                 showWinnerMessage(players[currentPlayer]);
@@ -127,7 +128,7 @@
                 showNextTurnButton();
                 cell.style.pointerEvents = "none"; // 클릭 방지
                 if (currentPlayer === 0) {
-                    moveNextCell(); // 왼쪽 빙고판에서 숫자를 클릭하고 난 후 다음 숫자로 이동
+                    moveNextCell();
                 }
             }
         }
@@ -142,7 +143,7 @@
                 }
             }
         }
-        // 다음 턴으로 전환하고 턴 메시지를 표시하며 타이머를 재설정합니다.
+
         function nextTurn() {
             currentPlayer = 1 - currentPlayer;
             hideNextTurnButton();
@@ -152,14 +153,19 @@
                 enableRightBoard();
             }
         }
-        // 현재 플레이어의 턴을 표시하는 함수입니다.
+
+        function resetGame() {
+            clearInterval(interval);
+            initializeGame();
+        }
+
         function displayTurnMessage() {
             turnMessage.textContent = `차례입니다 (${players[currentPlayer]})`;
         }
-        // 타이머를 시작하고 매 초마다 업데이트하는 함수입니다.
+
         function startTimer() {
             clearInterval(interval);
-            timer = 30;
+            timer = 5; // 제한 시간 5초로 설정
             interval = setInterval(() => {
                 document.querySelector(".timer").textContent = timer;
                 if (timer <= 0) {
@@ -168,12 +174,12 @@
                 timer--;
             }, 1000);
         }
-        // 타이머를 재설정하고 다시 시작하는 함수입니다
+
         function resetTimer() {
             clearInterval(interval);
             startTimer();
         }
-        // 특정 보드에서 승리 여부를 확인하는 함수로, 가로, 세로 및 대각선 빙고 여부를 검사합니다.
+
         function checkWin(board) {
             const cells = board.getElementsByClassName("cell");
             const lines = [
@@ -183,14 +189,14 @@
             ];
 
             for (const line of lines) {
-                if (line.every(index => cells[index].textContent === "X")) {
+                if (line.filter(index => cells[index].textContent === "X").length >= 2) { // 2줄 완성으로 수정
                     return true;
                 }
             }
 
             return false;
         }
-        // 다음 턴 버튼을 표시하거나 숨기는 함수입니다.
+
         function showNextTurnButton() {
             nextTurnButton.style.display = "block";
         }
@@ -198,17 +204,17 @@
         function hideNextTurnButton() {
             nextTurnButton.style.display = "none";
         }
-        // 승리한 플레이어를 알리는 경고 메시지를 표시하는 함수입니다.
+
         function showWinnerMessage(winner) {
             alert(winner + " 빙고판이 이겼습니다");
         }
-        // 현재 플레이어가 오른쪽 보드에서 셀을 클릭할 수 있도록 포인터 이벤트를 활성화하는 함수입니다.
+
         function enableRightBoard() {
             const rightCells = rightBoard.getElementsByClassName("cell");
             for (let i = 0; i < rightCells.length; i++) {
                 const cell = rightCells[i];
                 if (cell.textContent !== "X") {
-                    cell.style.pointerEvents = "auto"; // 오른쪽 빙고판 클릭 가능하게 함
+                    cell.style.pointerEvents = "auto";
                 }
             }
         }
