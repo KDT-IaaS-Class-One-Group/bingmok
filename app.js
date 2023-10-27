@@ -28,27 +28,33 @@ app.post('/', (req, res) => {
   if (submittedUsername === realUsername && submittedPassword === realPassword) {
     // 로그인 성공 시
     res.sendFile(__dirname + '/static/index.html');
-    res.send(`<script>document.getElementById('welcom').textContent = '환영합니다, ${submittedUsername} 님!';</script>`);
+
+    // GET 요청으로 gameOne.html 파일을 읽어옵니다.
+    app.get('/static/odhello.html', (req, res) => {
+      res.sendFile(__dirname + '/static/odhello.html');
+    });
+    app.get('/static/oshelloScript.js', (req, res) => {
+      res.sendFile(__dirname + '/static/oshelloScript.js');
+    });
+
+    // GET 요청으로 gameTwo.html 파일을 읽어옵니다.
+    app.get('/bingo', (req, res) => {
+      res.sendFile(__dirname + '/static/odhello.html');
+    });
+
   } else {
     // 로그인 실패 시
     res.send('로그인 실패');
   }
 });
 
-// GET 요청으로 gameOne.html 파일을 읽어옵니다.
 app.get('/static/odhello.html', (req, res) => {
-  res.sendFile(__dirname + '/static/odhello.html');
-});
-app.get('/static/oshelloScript.js', (req, res) => {
-  res.sendFile(__dirname + '/static/oshelloScript.js');
+  res.send('로그인하고 오시오');
 });
 
 
 
-// GET 요청으로 gameTwo.html 파일을 읽어옵니다.
-app.get('/bingo', (req, res) => {
-  res.sendFile(__dirname + '/static/odhello.html');
-});
+
 
 app.listen(port, () => {
   console.log(`
