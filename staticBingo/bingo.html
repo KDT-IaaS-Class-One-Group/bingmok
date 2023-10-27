@@ -45,12 +45,16 @@
         .bingo {
             background-color: lightgreen;
         }
+
+        .right-board-blur {
+            filter: blur(3px);
+        }
     </style>
 </head>
 <body>
     <div class="bingo-container">
         <div class="bingo-board" id="left-board"></div>
-        <div class="bingo-board" id="right-board"></div>
+        <div class="bingo-board right-board-blur" id="right-board"></div>
     </div>
     <div class="timer">5</div>
     <div class="turn-message" id="turn-message"></div>
@@ -71,8 +75,9 @@
         let interval;
         let leftBoardNumbers = [];
         let rightBoardNumbers = [];
-        let horizontalLinesToWin = 2; // 가로 줄을 두 번 완성해야 이기는 것으로 변경
-        let verticalLinesToWin = 2; // 세로 줄을 두 번 완성해야 이기는 것으로 변경
+        let horizontalLinesToWin = 2;
+        let verticalLinesToWin = 2;
+        let winner = null;
 
         initializeGame();
 
@@ -125,11 +130,14 @@
                 return;
             }
 
+            const selectedNumber = cell.textContent;
             cell.textContent = "X";
             cell.style.backgroundColor = "lightgray";
 
+            markRightBoard(selectedNumber);
+
             if (checkWin(leftBoard) || checkWin(rightBoard)) {
-                showWinnerMessage(players[currentPlayer]);
+                showWinnerMessage(winner);
                 clearInterval(interval);
             } else {
                 showNextTurnButton();
@@ -148,8 +156,32 @@
                 if (cell.textContent === "X") {
                     continue;
                 }
+                const selectedNumber = cell.textContent;
                 cellClickHandler(cell);
+                markLeftBoard(selectedNumber);
                 break;
+            }
+        }
+
+        function markRightBoard(selectedNumber) {
+            const rightCells = rightBoard.getElementsByClassName("cell");
+            for (let i = 0; i < rightCells.length; i++) {
+                const cell = rightCells[i];
+                if (cell.textContent === selectedNumber) {
+                    cell.textContent = "X";
+                    cell.style.backgroundColor = "lightgray";
+                }
+            }
+        }
+
+        function markLeftBoard(selectedNumber) {
+            const leftCells = leftBoard.getElementsByClassName("cell");
+            for (let i = 0; i < leftCells.length; i++) {
+                const cell = leftCells[i];
+                if (cell.textContent === selectedNumber) {
+                    cell.textContent = "X";
+                    cell.style.backgroundColor = "lightgray";
+                }
             }
         }
 
@@ -201,31 +233,52 @@
                 [4, 8, 12, 16, 20]
             ];
 
-            let horizontalLines = 0; // 완성된 가로 줄 수 초기화
-            let verticalLines = 0; // 완성된 세로 줄 수 초기화
-
+            let linesCompleted = 0;
             for (const line of lines) {
                 if (line.every(index => cells[index].textContent === "X")) {
-                    if (line[0] % 5 === 0 && line[4] % 5 === 4) {
-                        // 가로 줄 첫 번째와 마지막 셀인 경우
-                        horizontalLines++;
-                    }
-                    if (line[0] <= 4 && line[20] >= 20) {
-                        // 세로 줄 첫 번째와 마지막 셀인 경우
-                        verticalLines++;
-                    }
+                    linesCompleted++;
                 }
             }
 
-            if (horizontalLines >= horizontalLinesToWin) {
-                return true;
+            if (linesCompleted >= horizontalLinesToWin) {
+                if (horizontalLinesToWin === 2) {
+                    horizontalLinesToWin--;
+                } else {
+                    winner = board;
+                    board.classList.add("bingo");
+                    blurOpponentBoard(board);
+                    return true;
+                }
             }
 
-            if (verticalLines >= verticalLinesToWin) {
-                return true;
+            linesCompleted = 0;
+            for (let i = 0; i < 5; i++) {
+                const verticalLine = [i, i + 5, i + 10, i + 15, i + 20];
+                if (verticalLine.every(index => cells[index].textContent === "X")) {
+                    linesCompleted++;
+                }
+            }
+
+            if (linesCompleted >= verticalLinesToWin) {
+                if (verticalLinesToWin === 2) {
+                    verticalLinesToWin--;
+                } else {
+                    winner = board;
+                    board.classList.add("bingo");
+                    blurOpponentBoard(board);
+                    return true;
+                }
             }
 
             return false;
+        }
+
+        function blurOpponentBoard(board) {
+            if (board === leftBoard) {
+                rightBoard.classList.add("right-board-blur");
+            } else if (board === rightBoard) {
+                leftBoard.classList.add("right-board-blur");
+            }
         }
 
         function showNextTurnButton() {
@@ -237,7 +290,11 @@
         }
 
         function showWinnerMessage(winner) {
-            alert(winner + " 빙고판이 이겼습니다");
+            if (winner === leftBoard) {
+                alert("왼쪽 빙고판이 이겼습니다");
+            } else if (winner === rightBoard) {
+                alert("오른쪽 빙고판이 이겼습니다");
+            }
         }
 
         function enableRightBoard() {
@@ -252,8 +309,13 @@
         }
 
         function resetGame() {
-            horizontalLinesToWin = 2; // 두 줄을 완성해야 이기도록 초기화
-            verticalLinesToWin = 2; // 두 줄을 완성해야 이기도록 초기화
+            boards.forEach(board => {
+                board.classList.remove("bingo");
+                board.classList.remove("right-board-blur");
+            });
+            winner = null;
+            horizontalLinesToWin = 2;
+            verticalLinesToWin = 2;
             leftBoardNumbers = [];
             rightBoardNumbers = [];
             createBingoBoard(leftBoard);
