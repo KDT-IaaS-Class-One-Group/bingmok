@@ -133,3 +133,58 @@ function checkWin(row, col, stone) {
 
   return false;
 }
+// 추가된 부분: 쌍삼룰 방지 함수
+function hasDoubleThree(row, col, stone) {
+  // 가능한 모든 쌍삼 패턴 확인
+  const patterns = [
+    // 1번 패턴
+    [
+      [-1, -1, 2, 2, 3, 3],
+      [-1, 1, -2, 2, -3, 3],
+      [1, -1, -2, -2, -3, -3],
+      [1, 1, 2, 2, 3, 3],
+    ],
+    // 2번 패턴
+    [
+      [-1, -1, 1, -1, -1, 1],
+      [-1, -1, -1, 1, 1, 1],
+      [-1, -1, -1, 1, 1, 1],
+      [1, -1, 1, 1, -1, 1],
+    ],
+  ];
+
+  for (const pattern of patterns) {
+    let match = false;
+    for (const p of pattern) {
+      let matchCount = 0;
+      let emptyCount = 0;
+      for (const [dx2, dy2] of [p.slice(0, 2), p.slice(2, 4), p.slice(4, 6)]) {
+        const newRow = row + dx2;
+        const newCol = col + dy2;
+        if (
+          newRow >= 0 &&
+          newRow < boardSize &&
+          newCol >= 0 &&
+          newCol < boardSize
+        ) {
+          if (board[newRow][newCol] === stone) {
+            matchCount++;
+          } else if (board[newRow][newCol] === 0) {
+            emptyCount++;
+          }
+        }
+      }
+      if (matchCount === 2 && emptyCount === 3) {
+        match = true;
+        break;
+      }
+    }
+    if (match) {
+      alert("쌍삼룰 위반으로 게임 종료!");
+      restartGame(); // 게임 재시작
+      return true;
+    }
+  }
+
+  return false;
+}
