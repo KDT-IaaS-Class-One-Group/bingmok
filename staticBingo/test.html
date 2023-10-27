@@ -58,7 +58,7 @@
     </div>
     <div class="timer">5</div>
     <div class="turn-message" id="turn-message"></div>
-    <div class="next-turn-button" id "next-turn-button" style="display: none">다음 차례</div>
+    <div class="next-turn-button" id="next-turn-button" style="display: none">다음 차례</div>
     <div class="game-reset-button" id="game-reset-button">게임 리셋</div>
 
     <script>
@@ -78,6 +78,7 @@
         let horizontalLinesToWin = 2;
         let verticalLinesToWin = 2;
         let winner = null;
+        let leftBoardClicked = false; // 왼쪽 보드에서 클릭 상태 저장
 
         initializeGame();
 
@@ -131,6 +132,10 @@
             }
 
             const selectedNumber = cell.textContent;
+
+            // 왼쪽 빙고판에서 클릭하면 다른 셀이 자동으로 클릭되는 것을 막음
+            leftBoardClicked = true;
+
             cell.textContent = "X";
             cell.style.backgroundColor = "lightgray";
             cell.style.pointerEvents = "none"; // 클릭 방지
@@ -151,6 +156,12 @@
         }
 
         function moveNextCell() {
+            if (leftBoardClicked) {
+                // 왼쪽 보드에서 클릭이 발생한 경우, 오른쪽 보드에 클릭 이벤트를 발생시키지 않음
+                leftBoardClicked = false;
+                return;
+            }
+
             const rightCells = rightBoard.getElementsByClassName("cell");
             for (let i = 0; i < rightCells.length; i++) {
                 const cell = rightCells[i];
@@ -297,6 +308,7 @@
             displayTurnMessage();
             currentPlayer = 0;
             enableRightBoard();
+            rightBoard.classList.add("right-board-blur");
         }
     </script>
 </body>
