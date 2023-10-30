@@ -238,6 +238,20 @@
                             document.getElementById("winner-message").textContent = "오른쪽 빙고! 승리!";
                         }
                         clearInterval(timerInterval);
+                    } else if (colCount === boardSize && diagCount1 === boardSize) {
+                        if (document.getElementById(boardId) === document.getElementById("left-board")) {
+                            document.getElementById("winner-message").textContent = "왼쪽 빙고! 승리!";
+                        } else {
+                            document.getElementById("winner-message").textContent = "오른쪽 빙고! 승리!";
+                        }
+                        clearInterval(timerInterval);
+                    } else if (diagCount1 === boardSize && diagCount2 === boardSize) {
+                        if (document.getElementById(boardId) === document.getElementById("left-board")) {
+                            document.getElementById("winner-message").textContent = "왼쪽 빙고! 승리!";
+                        } else {
+                            document.getElementById("winner-message").textContent = "오른쪽 빙고! 승리!";
+                        }
+                        clearInterval(timerInterval);
                     }
                     return;
                 }
