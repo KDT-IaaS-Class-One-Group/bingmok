@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>빙고 게임</title>
+    <style>
+        .bingo-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .bingo-board {
+            border-collapse: collapse;
+        }
+        .bingo-board, .bingo-board th, .bingo-board td {
+            border: 1px solid black;
+        }
+        .bingo-board th, .bingo-board td {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .timer {
+            text-align: center;
+            font-size: 24px;
+        }
+        .turn-message {
+            text-align: center;
+            font-size: 24px;
+        }
+        .winner-message {
+            text-align: center;
+            font-size: 24px;
+        }
+        .checked {
+            background-color: lightgreen;
+        }
+        /* 스타일 추가: 오른쪽 게임판 숫자를 블러 처리 */
+        #right-board td {
+            color: transparent;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>빙고 게임</h1>
+    <div class="bingo-container">
+        <table class="bingo-board" id="left-board">
+        </table>
+        <table class="bingo-board" id="right-board">
+        </table>
+    </div>
+    <div class="timer" id="timer"></div>
+    <div class="turn-message" id="turn-message"></div>
+    <div class="winner-message" id="winner-message"></div>
+    <button id="next-turn" onclick="nextTurn()">턴 종료</button>
+    <button id="reset-game" onclick="resetGame()">게임 리셋</button>
+
+    <script>
+        // 빙고 보드 생성
+        const boardSize = 5; // 5x5 빙고
+        const maxNumbers = boardSize * boardSize;
+        const leftNumbers = Array.from({ length: maxNumbers }, (_, index) => index + 1);
+        const rightNumbers = [...leftNumbers]; // 오른쪽 게임판은 왼쪽 게임판과 동일한 숫자 배열을 복사
+
+        const shuffleArray = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        };
+
+        shuffleArray(leftNumbers);
+        shuffleArray(rightNumbers);
+
+        function createBingoBoard(boardId, numbers) {
+            const bingoBoard = document.getElementById(boardId);
+            for (let i = 0; i < boardSize; i++) {
+                const row = document.createElement("tr");
+                for (let j = 0; j < boardSize; j++) {
+                    const cell = document.createElement("td");
+                    cell.textContent = numbers[i * boardSize + j];
+                    cell.addEventListener("click", () => {
+                        if (cell.parentElement.parentElement.classList.contains("active-board")) {
+                            cell.classList.toggle("checked");
+                            markOpponentBoard(currentPlayer === "left" ? "right" : "left", cell.textContent);
+                            checkForBingo(boardId);
+                            nextTurn();
+                        }
+                    });
+                    row.appendChild(cell);
+                }
+                bingoBoard.appendChild(row);
+            }
+        }
+
+        createBingoBoard("left-board", leftNumbers);
+        createBingoBoard("right-board", rightNumbers);
+
+        // 게임 초기화
+        let currentPlayer = "left"; // "left" 또는 "right"
+        document.getElementById(currentPlayer + "-board").classList.add("active-board");
+        document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
+        let timer = 10;
+        document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+        let timerInterval;
+
+        function getRandomCell(player) {
+            const board = document.getElementById(player + "-board");
+            const uncheckedCells = board.querySelectorAll("td:not(.checked)");
+            if (uncheckedCells.length === 0) {
+                return null;
+            }
+            return uncheckedCells[Math.floor(Math.random() * uncheckedCells.length)];
+        }
+
+        function markOpponentBoard(player, number) {
+            const opponentBoard = document.getElementById(player + "-board");
+            const cells = opponentBoard.getElementsByTagName("td");
+            for (let i = 0; i < cells.length; i++) {
+                if (cells[i].textContent === number) {
+                    cells[i].classList.add("checked");
+                }
+            }
+        }
+
+        function startAITurn() {
+            setTimeout(() => {
+                if (currentPlayer === "right") {
+                    const cell = getRandomCell("right");
+                    if (cell) {
+                        cell.click();
+                    }
+                }
+            }, 5000); // 5초 지연 후 AI의 턴 시작
+        }
+
+        startAITurn(); // 게임 시작 시 AI 턴 시작
+
+        function nextTurn() {
+            if (currentPlayer === "left") {
+                document.getElementById("next-turn").disabled = false; 
+                clearInterval(timerInterval);
+                timer = 10;
+                timerInterval = setInterval(() => {
+                    timer--;
+                    document.getElementById("timer").textContent = `남은 시간: ${timer}초`;
+                    if (timer === 0) {
+                        const cell = getRandomCell("left");
+                        if (cell) {
+                            cell.click();
+                        }
+                        nextTurn();
+                    }
+                }, 1000);
+            } else {
+                document.getElementById("next-turn").disabled = true; 
+            }
+
+            document.getElementById("turn-message").textContent = "";
+            document.getElementById(currentPlayer + "-board").classList.remove("active-board");
+            currentPlayer = currentPlayer === "left" ? "right" : "left";
+            document.getElementById(currentPlayer + "-board").classList.add("active-board");
+            document.getElementById("turn-message").textContent = currentPlayer === "left" ? "차례입니다 (왼쪽)" : "차례입니다 (오른쪽)";
+
+            startAITurn(); 
+        }
+
+        function checkForBingo(boardId) {
+            const board = document.getElementById(boardId);
+            const rows = board.getElementsByTagName("tr");
+            let rowCount = 0;
+            let colCount = 0;
+            let diagCount1 = 0;
+            let diagCount2 = 0;
+
+            for (let i = 0; i < boardSize; i++) {
+                rowCount = 0;
+                colCount = 0;
+                for (let j = 0; j < boardSize; j++) {
+                    const cellRow = rows[i];
+                    const cellCol = board.getElementsByTagName("tr")[j];
+                    const cell1 = cellRow.getElementsByTagName("td")[j];
+                    const cell2 = cellCol.getElementsByTagName("td")[i];
+                    if (cell1.classList.contains("checked")) {
+                        rowCount++;
+                    }
+                    if (cell2.classList.contains("checked")) {
+                        colCount++;
+                    }
+                    if (i === j && cell1.classList.contains("checked")) {
+                        diagCount1++;
+                    }
+                    if (i + j === boardSize - 1 && cell1.classList.contains("checked")) {
+                        diagCount2++;
+                    }
+                }
+                if (rowCount === boardSize || colCount === boardSize || diagCount1 === boardSize || diagCount2 === boardSize) {
+                    if (rowCount === boardSize) {
+                        if (document.getElementById(boardId) === document.getElementById("left-board")) {
+                            document.getElementById("winner-message").textContent = "왼쪽 빙고! 승리!";
+                        } else {
+                            document.getElementById("winner-message").textContent = "오른쪽 빙고! 승리!";
+                        }
+                        clearInterval(timerInterval);
+                    } else if (rowCount === boardSize && diagCount1 === boardSize) {
+                        if (document.getElementById(boardId) === document.getElementById("left-board")) {
+                            document.getElementById("winner-message").textContent = "왼쪽 빙고! 승리!";
+                        } else {
+                            document.getElementById("winner-message").textContent = "오른쪽 빙고! 승리!";
+                        }
+                        clearInterval(timerInterval);
+                    } else if (colCount === boardSize) {
+                        if (document.getElementById(boardId) === document.getElementById("left-board")) {
+                            document.getElementById("winner-message").textContent = "왼쪽 빙고! 승리!";
+                        } else {
+                            document.getElementById("winner-message").textContent = "오른쪽 빙고! 승리!";
+                        }
+                        clearInterval(timerInterval);
+                    }
+                    return;
+                }
+            }
+        }
+
+        function resetGame() {
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
