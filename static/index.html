@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>main</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    #root{
+      width: 100vw;
+      height: 100vh;
+      background-color:rgb(239, 242, 228);
+      padding: 5vw;
+    }
+
+    #root > div:nth-child(1){
+      width: 100vw;
+      font-size: 5rem;
+      font-weight: 900;
+    }
+
+    #root > div:nth-child(2){
+      width: 100vw;
+      display: flex;
+    }
+
+    .games{
+      width: 65vw;
+      height: 50vw;
+      display: flex;
+      align-items: center;
+    }
+
+    .odhello{
+      width: 35vw;
+      margin-right: 1vw;
+    }
+
+    .login{
+      width: 30vw;
+      height: 15vh;
+      margin-top: 25vh;
+      margin-left: 5vw;
+    }
+
+    input{
+      margin-top: 1vw;
+      font-size: 1.2rem;
+      width: 17vw;
+      height: 4vh;
+    }
+
+    .scrolling-text-container {
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    
+    .scrolling-text {
+      display: inline-block;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="scrolling-text-container">
+      <div class="scrolling-text">
+        <span>게임 중독은 패가 망신의 길! </span>
+      </div>
+    </div>
+
+    <div>
+      <div class="games">
+        
+        <div class="odhello">
+          <!-- <a href="/static/odhello.html"> -->
+          <img src="https://play-lh.googleusercontent.com/Xc59tWSt3F_Z8T0NUFJls5qr4XSttRO7SINC0_4HCkLk04mh4cBnz0OU1G2Bbs4pqU8" alt="Omok Game">
+          </a>
+        </div>
+        
+        <div class="bingo">
+          <!-- <a href="bingo.html"> -->
+            <img src="https://cdn-icons-png.flaticon.com/512/4983/4983961.png" alt="Bingo Game">
+          </a>
+        </div>
+      </div>
+      
+      <div class="login">
+        <h2>LOGIN 성공해야 게임 가능😜</h2>
+        <form action="" method="post">
+          <input type="text" name="username" placeholder="Username">
+          <br>
+          <input type="password" name="password" placeholder="Password">
+          <br>
+          <input type="submit" value="Login">
+        </form>
+      </div>
+    </div>        
+  </div>
+
+  <script>
+    const container = document.querySelector('.scrolling-text-container');
+    const text = document.querySelector('.scrolling-text');
+  
+    // 텍스트의 너비
+    const textWidth = text.clientWidth;
+  
+    // 화면 너비
+    const screenWidth = window.innerWidth;
+  
+    // 애니메이션 시작 지점
+    const startPosition = screenWidth;
+  
+    // 애니메이션 종료 지점
+    const endPosition = -textWidth;
+  
+    // 애니메이션을 시작합니다.
+    animate();
+  
+    // 애니메이션 종료 후 다시 시작합니다.
+    text.addEventListener('transitionend', () => {
+      text.style.transition = 'none';
+      text.style.transform = `translateX(${startPosition}px)`;
+      animate();
+    });
+  
+    function animate() {
+      text.style.transform = `translateX(${startPosition}px)`;
+      container.offsetWidth; // 리플로우 트리거
+      text.style.transition = 'transform 10s linear';
+      text.style.transform = `translateX(${endPosition}px)`;
+    }
+  </script>
+  
+  
+</body>
+</html>
