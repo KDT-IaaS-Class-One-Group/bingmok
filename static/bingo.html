@@ -256,14 +256,14 @@
           }
 
           if (
-            (rowCount === 2 ||
-              colCount === 2 ||
-              diagCount1 === 2 ||
-              diagCount2 === 2) &&
-            rowCount !== 3 &&
-            colCount !== 3 &&
-            diagCount1 !== 3 &&
-            diagCount2 !== 3
+            (rowCount >= 2 ||
+              colCount >= 2 ||
+              diagCount1 >= 2 ||
+              diagCount2 >= 2) &&
+            rowCount <= 2 &&
+            colCount <= 2 &&
+            diagCount1 <= 2 &&
+            diagCount2 <= 2
           ) {
             if (
               document.getElementById(boardId) ===
