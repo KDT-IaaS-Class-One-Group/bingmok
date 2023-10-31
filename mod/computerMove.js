@@ -60,4 +60,6 @@ function computerMove() {
   }
 }
 
+module.exports = computerMove;
+
 // 컴퓨터가 현재 게임 보드에서 플레이어가 놓은 돌 주변에 우선적으로 놓아야 할 위치를 찾는 역할. 이렇게 찾은 위치를 playerSpots 배열에 저장하고, 이후 컴퓨터가 수를 둘 때 컴퓨터는 playerSpots 배열에 놓을 수 있는 위치가 있으면 그 주변에 우선적으로 돌을 두고, 그렇지 않으면 빈 곳 중 하나를 무작위로 선택하여 돌을 둠
