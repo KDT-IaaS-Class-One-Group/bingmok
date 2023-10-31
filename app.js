@@ -7,10 +7,13 @@ app.use(express.static('static'));
 
 // Body 파서 설정 (POST 요청의 body를 파싱하기 위해)
 app.use(express.urlencoded({ extended: true }));
+// urlencoded : 서버가 클라이언트로부터 URL-encoded 데이터를 받을 때 이 데이터를 파싱하고 JavaScript 객체로 변환
+// extended : false => parse to simple object with QueryString library
 app.use(express.json());
 
 // GET 요청으로 index.html 파일을 읽어옵니다.
 app.get('/', (req, res) => {
+  //sendFile로 ( 현재directory + 파일 directory ) 응답한다
     res.sendFile(__dirname + '/static/index.html');
 });
 
@@ -44,10 +47,11 @@ app.post('/', (req, res) => {
   } else {
     // 로그인 실패 시
     res.send('로그인 실패');
+    // send() : express method / send http res to client
   }
 });
 
-
+// serv.listen
 app.listen(port, () => {
   console.log(`
 서버가 포트 ${port}에서 실행 중입니다.
